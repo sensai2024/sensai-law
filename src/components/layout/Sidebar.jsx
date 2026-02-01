@@ -20,7 +20,7 @@ const Sidebar = () => {
         { path: '/analytics', label: 'Analytics', icon: MdAssessment },
         { path: '/settings', label: 'Settings', icon: MdSettings },
     ];
-
+    console.log("7amadaaaaaaa");
     return (
         <aside className="w-[240px] bg-surface border-r border-border h-screen fixed left-0 top-0 flex flex-col z-10 transition-colors">
             <div className="h-16 flex items-center px-6 border-b border-white/5">
