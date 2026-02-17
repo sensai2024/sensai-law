@@ -2,7 +2,7 @@ import React from 'react';
 import { MdInsertDriveFile, MdPlayArrow } from 'react-icons/md';
 import WorkflowPreviewSteps from './WorkflowPreviewSteps';
 
-const AutomationReviewPanel = ({ document, onStartAutomation }) => {
+const AutomationReviewPanel = ({ document, onStartAutomation, isPending = false }) => {
     if (!document) {
         return (
             <div className="bg-surface rounded-lg border border-white/5 h-full flex flex-col items-center justify-center text-text-secondary">
@@ -105,18 +105,18 @@ const AutomationReviewPanel = ({ document, onStartAutomation }) => {
             <div className="p-5 border-t border-white/5 bg-surfaceHighlight">
                 <button
                     onClick={onStartAutomation}
-                    disabled={isProcessing || isCompleted}
-                    className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md font-medium transition-all ${isProcessing
-                            ? 'bg-surfaceHighlight text-text-secondary cursor-not-allowed border border-white/5'
-                            : isCompleted
-                                ? 'bg-green-900/30 text-green-400 border border-green-900/50 cursor-not-allowed'
-                                : 'bg-primary hover:bg-primary/90 text-white shadow-lg'
+                    disabled={isPending || isProcessing || isCompleted}
+                    className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md font-medium transition-all ${isPending || isProcessing
+                        ? 'bg-surfaceHighlight text-text-secondary cursor-not-allowed border border-white/5'
+                        : isCompleted
+                            ? 'bg-green-900/30 text-green-400 border border-green-900/50 cursor-not-allowed'
+                            : 'bg-primary hover:bg-primary/90 text-white shadow-lg'
                         }`}
                 >
-                    {isProcessing ? (
+                    {isPending || isProcessing ? (
                         <>
                             <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
-                            Processing...
+                            {isPending ? 'Starting...' : 'Processing...'}
                         </>
                     ) : isCompleted ? (
                         <>

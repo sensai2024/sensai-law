@@ -1,8 +1,4 @@
-import React, { useState } from 'react';
-import DocumentQueueTable from '../features/automations/DocumentQueueTable';
-import AutomationReviewPanel from '../features/automations/AutomationReviewPanel';
-
-// Mock data
+// Mock data for development
 const MOCK_DOCUMENTS = [
     {
         id: "DOC-001",
@@ -86,55 +82,55 @@ const MOCK_DOCUMENTS = [
     }
 ];
 
-const Automations = () => {
-    const [documents, setDocuments] = useState(MOCK_DOCUMENTS);
-    const [selectedDocId, setSelectedDocId] = useState(null);
-
-    const selectedDoc = documents.find(d => d.id === selectedDocId);
-
-    const handleStartAutomation = () => {
-        if (!selectedDoc) return;
-
-        // Update status to Processing
-        setDocuments(prev => prev.map(d =>
-            d.id === selectedDocId ? { ...d, status: 'Processing' } : d
-        ));
-
-        // Simulate automation completion after 2 seconds
-        setTimeout(() => {
-            setDocuments(prev => prev.map(d =>
-                d.id === selectedDocId ? { ...d, status: 'Sent to Draft' } : d
-            ));
-        }, 2000);
-    };
-
-    return (
-        <div className="h-full flex flex-col">
-            <div className="mb-6">
-                <h1 className="text-2xl font-semibold text-text-primary">Automation Pipeline</h1>
-                <p className="text-text-secondary">Review and trigger automated contract generation</p>
-            </div>
-
-            <div className="flex gap-6 flex-1 overflow-hidden">
-                {/* LEFT PANEL - 65% */}
-                <div className="w-[65%]">
-                    <DocumentQueueTable
-                        documents={documents}
-                        selectedDocId={selectedDocId}
-                        onSelectDocument={setSelectedDocId}
-                    />
-                </div>
-
-                {/* RIGHT PANEL - 35% */}
-                <div className="w-[35%]">
-                    <AutomationReviewPanel
-                        document={selectedDoc}
-                        onStartAutomation={handleStartAutomation}
-                    />
-                </div>
-            </div>
-        </div>
-    );
+/**
+ * Fetch all documents from the automation queue
+ * @returns {Promise<Array>} Array of document objects
+ * 
+ * TO CONNECT TO REAL API:
+ * Replace with: return fetch('/api/automations/documents').then(res => res.json())
+ */
+export const getDocuments = async () => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return Promise.resolve(MOCK_DOCUMENTS);
 };
 
-export default Automations;
+/**
+ * Fetch a single document by ID
+ * @param {string} id - Document ID
+ * @returns {Promise<Object>} Document object
+ * 
+ * TO CONNECT TO REAL API:
+ * Replace with: return fetch(`/api/automations/documents/${id}`).then(res => res.json())
+ */
+export const getDocumentById = async (id) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const document = MOCK_DOCUMENTS.find(doc => doc.id === id);
+
+    if (!document) {
+        throw new Error(`Document with ID ${id} not found`);
+    }
+
+    return Promise.resolve(document);
+};
+
+/**
+ * Start automation workflow for a document
+ * @param {string} id - Document ID
+ * @returns {Promise<Object>} Updated document object
+ * 
+ * TO CONNECT TO REAL API:
+ * Replace with: return fetch(`/api/automations/documents/${id}/start`, { method: 'POST' }).then(res => res.json())
+ */
+export const startAutomation = async (id) => {
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // Simulate automation start
+    return Promise.resolve({
+        id,
+        status: 'Processing',
+        message: 'Automation workflow started successfully'
+    });
+};

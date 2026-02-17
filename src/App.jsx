@@ -5,7 +5,7 @@ import MainLayout from './components/layout/MainLayout';
 import Dashboard from './pages/Dashboard';
 import ContractsList from './pages/ContractsList';
 import ContractDetail from './pages/ContractDetail';
-import Automations from './pages/Automations';
+import Automations from './features/automations/pages/Automations';
 
 const PlaceholderPage = ({ title }) => <div className="text-2xl font-bold p-4">{title} Placeholder</div>;
 

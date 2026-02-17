@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MdSearch, MdInsertDriveFile } from 'react-icons/md';
-import StatusPill from '../../components/common/StatusPill';
+import StatusPill from '../../../components/common/StatusPill';
 
 const DocumentQueueTable = ({ documents, selectedDocId, onSelectDocument }) => {
     const [searchTerm, setSearchTerm] = useState('');
