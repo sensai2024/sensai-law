@@ -48,10 +48,7 @@ const AutomationReviewPanel = ({ document, onStartAutomation, isPending = false 
                                 {document.confidence}%
                             </div>
                         </div>
-                        <div>
-                            <div className="text-xs text-text-secondary mb-1">Source</div>
-                            <div className="text-sm text-white font-medium">{document.source}</div>
-                        </div>
+
                     </div>
                 </div>
             </div>
