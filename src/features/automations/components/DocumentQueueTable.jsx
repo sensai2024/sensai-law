@@ -27,8 +27,8 @@ const DocumentQueueTable = ({ documents, selectedDocId, onSelectDocument }) => {
             </div>
 
             {/* Table */}
-            <div className="flex-1 overflow-y-auto">
-                <table className="w-full text-sm">
+            <div className="flex-1 overflow-auto">
+                <table className="w-full text-sm min-w-[700px]">
                     <thead className="bg-surfaceHighlight sticky top-0 z-10">
                         <tr className="text-text-secondary text-xs uppercase">
                             <th className="px-4 py-3 text-left font-semibold">File Name</th>

@@ -46,51 +46,5 @@ export const useStartAutomation = () => {
 
     return useMutation({
         mutationFn: automationService.startAutomation,
-        onMutate: async (documentId) => {
-            // Cancel outgoing refetches
-            await queryClient.cancelQueries({ queryKey: automationKeys.documents() });
-
-            // Snapshot the previous value
-            const previousDocuments = queryClient.getQueryData(automationKeys.documents());
-
-            // Optimistically update to the new value
-            queryClient.setQueryData(automationKeys.documents(), (old) => {
-                if (!old) return old;
-                return old.map(doc =>
-                    doc.id === documentId
-                        ? { ...doc, status: 'Processing' }
-                        : doc
-                );
-            });
-
-            // Return context with the snapshot
-            return { previousDocuments };
-        },
-        onError: (err, documentId, context) => {
-            // Rollback on error
-            if (context?.previousDocuments) {
-                queryClient.setQueryData(
-                    automationKeys.documents(),
-                    context.previousDocuments
-                );
-            }
-        },
-        onSuccess: (data, documentId) => {
-            // Simulate completion after 2 seconds
-            setTimeout(() => {
-                queryClient.setQueryData(automationKeys.documents(), (old) => {
-                    if (!old) return old;
-                    return old.map(doc =>
-                        doc.id === documentId
-                            ? { ...doc, status: 'Sent to Draft' }
-                            : doc
-                    );
-                });
-            }, 2000);
-        },
-        onSettled: () => {
-            // Always refetch after error or success
-            queryClient.invalidateQueries({ queryKey: automationKeys.documents() });
-        },
     });
 };

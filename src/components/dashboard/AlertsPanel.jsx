@@ -12,16 +12,16 @@ const AlertItem = ({ type, message, time, action }) => {
     const Icon = style.icon;
 
     return (
-        <div className="flex gap-3 p-3 rounded-md bg-background/50 border border-white/5 mb-3 last:mb-0">
+        <div className="flex gap-3 p-3 md:p-4 rounded-lg bg-background/50 border border-white/5 hover:bg-white/5 transition-colors group">
             <div className={`w-8 h-8 rounded shrink-0 flex items-center justify-center ${style.bg} ${style.color}`}>
                 <Icon className="text-lg" />
             </div>
-            <div className="flex-1">
-                <p className="text-sm text-text-primary mb-1">{message}</p>
-                <div className="flex justify-between items-center">
+            <div className="flex-1 min-w-0">
+                <p className="text-sm text-text-primary mb-1 md:mb-1.5 truncate text-wrap leading-tight">{message}</p>
+                <div className="flex justify-between items-center mt-auto">
                     <span className="text-xs text-text-secondary">{time}</span>
                     {action && (
-                        <button className="text-xs font-medium text-primary hover:text-primaryHover hover:underline">
+                        <button className="text-xs font-semibold text-primary hover:text-primaryHover hover:underline transition-all">
                             {action}
                         </button>
                     )}
@@ -41,12 +41,12 @@ const AlertsPanel = () => {
     if (alerts.length === 0) return null;
 
     return (
-        <div className="bg-surface border border-white/5 rounded-lg p-5 h-full">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-md font-semibold text-text-primary">Action Required</h2>
-                <span className="text-xs font-medium bg-red-500 text-white px-2 py-0.5 rounded-full">3</span>
+        <div className="bg-surface border border-white/5 rounded-xl p-4 md:p-5 h-full flex flex-col shadow-sm">
+            <div className="flex items-center justify-between mb-4 md:mb-5">
+                <h2 className="text-base md:text-lg font-semibold text-text-primary tracking-tight">Action Required</h2>
+                <span className="text-xs font-bold bg-red-500/20 text-red-500 border border-red-500/20 px-2.5 py-1 rounded-full">{alerts.length}</span>
             </div>
-            <div>
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 space-y-3">
                 {alerts.map((alert, index) => (
                     <AlertItem key={index} {...alert} />
                 ))}
