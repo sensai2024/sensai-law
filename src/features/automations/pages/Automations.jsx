@@ -56,13 +56,37 @@ const Automations = () => {
     // Find selected document in mapped queue documents so it has all necessary data
     const selectedDoc = mappedQueueDocs.find(d => d.id === selectedDocId);
 
-    const formattedContent = selectedDoc?.content ? selectedDoc.content
-        // إضافة فاصلة قبل العنوان الرئيسي
-        .replace(/^(ACCORD-CADRE DE PRESTATION DE SERVICES.*)$/gm, '\n\n$1\n\n')
-        // فصل أي سطرين أو أكثر لفواصل بين الفقرات
-        .replace(/\n{2,}/g, '\n\n')
-        // كل سطر جديد في paragraph → line break
-        .replace(/([^\n])\n([^\n])/g, '$1  \n$2') : "";
+    const formattedContent = selectedDoc?.content
+        ? selectedDoc.content
+
+            // العنوان الرئيسي → H1
+            .replace(
+                /^ACCORD-CADRE DE PRESTATION DE SERVICES$/gm,
+                '# ACCORD-CADRE DE PRESTATION DE SERVICES\n'
+            )
+
+            // ARTICLE X → H2
+            .replace(
+                /^ARTICLE\s+\d+\s+-\s+.+$/gm,
+                match => `\n## ${match}\n`
+            )
+
+            // 5.1 / 6.2 / 12.1 → H3
+            .replace(
+                /^(\d+\.\d+\.\s+.+)$/gm,
+                match => `\n### ${match}\n`
+            )
+
+            // التعريفات (Word : description) → bullet list
+            .replace(
+                /^([A-Za-zÀ-ÿ0-9\s\/'-]+)\s:\s(.+)$/gm,
+                '- **$1** : $2'
+            )
+
+            // تثبيت الفواصل
+            .replace(/\n{2,}/g, '\n\n')
+
+        : "";
     // Handle automation start
     const handleStartAutomation = () => {
         if (!selectedDocId) return;
