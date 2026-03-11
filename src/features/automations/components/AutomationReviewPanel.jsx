@@ -14,6 +14,7 @@ const AutomationReviewPanel = ({ document, onStartAutomation, isPending = false 
 
     const isProcessing = document.status === 'Processing';
     const isCompleted = document.status === 'Sent to Draft' || document.status === 'Completed';
+    const isFailed = document.status === 'Failed';
 
     return (
         <div className="bg-surface rounded-lg border border-white/5 h-full flex flex-col">
@@ -103,12 +104,15 @@ const AutomationReviewPanel = ({ document, onStartAutomation, isPending = false 
                 <button
                     onClick={onStartAutomation}
                     disabled={isPending || isProcessing || isCompleted}
-                    className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md font-medium transition-all ${isPending || isProcessing
-                        ? 'bg-surfaceHighlight text-text-secondary cursor-not-allowed border border-white/5'
-                        : isCompleted
+                    className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-md font-medium transition-all ${
+                        isPending || isProcessing
+                            ? 'bg-surfaceHighlight text-text-secondary cursor-not-allowed border border-white/5'
+                            : isCompleted
                             ? 'bg-green-900/30 text-green-400 border border-green-900/50 cursor-not-allowed'
+                            : isFailed
+                            ? 'bg-red-900/30 hover:bg-red-900/40 text-red-400 border border-red-900/50'
                             : 'bg-primary hover:bg-primary/90 text-white shadow-lg'
-                        }`}
+                    }`}
                 >
                     {isPending || isProcessing ? (
                         <>
@@ -116,9 +120,9 @@ const AutomationReviewPanel = ({ document, onStartAutomation, isPending = false 
                             {isPending ? 'Starting...' : 'Processing...'}
                         </>
                     ) : isCompleted ? (
-                        <>
-                            Sent to Draft
-                        </>
+                        <>Sent to Draft</>
+                    ) : isFailed ? (
+                        <>Retry Automation</>
                     ) : (
                         <>
                             <MdPlayArrow className="text-xl" />

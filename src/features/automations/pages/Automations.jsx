@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { useContracts } from '../../../hooks/useContracts';
+import { useDocuments } from '../../../hooks/useDocument';
 import DocumentQueueTable from '../components/DocumentQueueTable';
 import AutomationReviewPanel from '../components/AutomationReviewPanel';
 import { useStartAutomation } from '../hooks/useAutomations';
@@ -70,9 +70,9 @@ const Automations = () => {
     const [selectedDocId, setSelectedDocId] = useState(null);
 
     // Fetch documents using React Query from the webhook
-    const { data: contractDocuments = [], isLoading: isLoadingContracts, error: errorContracts } = useContracts();
+    const { data: contractDocuments = [], isLoading: isLoadingContracts, error: errorContracts } = useDocuments();
 
-    // Ensure contracts are always an array
+    // Ensure Documents are always an array
     const normalizedContracts = useMemo(() => {
         if (!contractDocuments) return [];
         return Array.isArray(contractDocuments) ? contractDocuments : [contractDocuments];
@@ -125,23 +125,39 @@ const Automations = () => {
     );
 
     const handleStartAutomation = () => {
-        if (!selectedDocId) return;
+        // selectedDoc represents the currently active document loaded from your queue
+        if (!selectedDoc) return;
 
-        // Optimistically set status to 'Processing'
-        setDocumentStatuses(prev => ({ ...prev, [selectedDocId]: 'Processing' }));
+        // Optimistically set the local UI status to 'Processing'
+        setDocumentStatuses((prev) => ({
+            ...prev,
+            [selectedDoc.id]: 'Processing'
+        }));
 
-        startAutomation(selectedDocId, {
-            onSuccess: () => {
-                // Simulate backend work completion after 2.5 seconds
-                setTimeout(() => {
-                    setDocumentStatuses(prev => ({ ...prev, [selectedDocId]: 'Sent to Draft' }));
-                }, 2500);
+        // Trigger the actual webhook request
+        startAutomation(
+            {
+                documentId: selectedDoc.id,
+                content: selectedDoc.content,
+                fileName: selectedDoc.fileName,
             },
-            onError: () => {
-                // Revert status on failure
-                setDocumentStatuses(prev => ({ ...prev, [selectedDocId]: 'Pending' }));
+            {
+                onSuccess: () => {
+                    // Update local status to 'Sent to Draft' on success
+                    setDocumentStatuses((prev) => ({
+                        ...prev,
+                        [selectedDoc.id]: 'Sent to Draft'
+                    }));
+                },
+                onError: () => {
+                    // Revert status to 'Failed' (or 'Pending') on error
+                    setDocumentStatuses((prev) => ({
+                        ...prev,
+                        [selectedDoc.id]: 'Failed'
+                    }));
+                }
             }
-        });
+        );
     };
 
     const renderMainContent = () => {

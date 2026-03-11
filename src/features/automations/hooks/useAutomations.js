@@ -18,7 +18,7 @@ export const useDocuments = () => {
     return useQuery({
         queryKey: automationKeys.documents(),
         queryFn: automationService.getDocuments,
-        staleTime: 30000, // Consider data fresh for 30 seconds
+        staleTime: 10000, // Consider data fresh for 10 seconds
         refetchOnWindowFocus: true, // Refetch when user returns to tab
     });
 };
@@ -46,5 +46,9 @@ export const useStartAutomation = () => {
 
     return useMutation({
         mutationFn: automationService.startAutomation,
+        onSuccess: () => {
+            // Invalidate the documents query to refetch the updated data/status
+            queryClient.invalidateQueries({ queryKey: ['automations', 'documents'] });
+        }
     });
 };
