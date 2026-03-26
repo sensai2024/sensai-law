@@ -13,7 +13,7 @@ const AutomationReviewPanel = ({ document, onStartAutomation, isPending = false 
     }
 
     const isProcessing = document.status === 'Processing';
-    const isCompleted = document.status === 'Sent to Draft' || document.status === 'Completed';
+    const isCompleted = document.status === 'Sent' || document.status === 'Sent to Draft' || document.status === 'Completed';
     const isFailed = document.status === 'Failed';
 
     return (
@@ -120,7 +120,7 @@ const AutomationReviewPanel = ({ document, onStartAutomation, isPending = false 
                             {isPending ? 'Starting...' : 'Processing...'}
                         </>
                     ) : isCompleted ? (
-                        <>Sent to Draft</>
+                        <>Sent</>
                     ) : isFailed ? (
                         <>Retry Automation</>
                     ) : (

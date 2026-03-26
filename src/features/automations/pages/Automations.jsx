@@ -1,12 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { useDocuments } from '../../../hooks/useDocument';
 import DocumentQueueTable from '../components/DocumentQueueTable';
 import AutomationReviewPanel from '../components/AutomationReviewPanel';
-import { useStartAutomation } from '../hooks/useAutomations';
+import { useWebhookDocuments } from '../hooks/useWebhookDocuments';
 
 // --- Shared Components ---
-// Extracted to avoid repeating the header in every UI state (Loading/Error/Success)
 const PageHeader = () => (
     <div className="mb-6 flex-shrink-0">
         <h1 className="text-2xl md:text-3xl font-semibold text-text-primary tracking-tight">Automation Pipeline</h1>
@@ -34,24 +32,16 @@ const ErrorState = ({ message }) => (
 );
 
 // --- Helper Functions ---
-// Moved outside the component to prevent recreation on every render.
 const formatDocumentContent = (content) => {
     if (!content) return "";
     return content
-        // العنوان الرئيسي → H1
         .replace(/^ACCORD-CADRE DE PRESTATION DE SERVICES$/gm, '# ACCORD-CADRE DE PRESTATION DE SERVICES\n')
-        // ARTICLE X → H2
         .replace(/^ARTICLE\s+\d+\s+-\s+.+$/gm, match => `\n## ${match}\n`)
-        // 5.1 / 6.2 / 12.1 → H3
         .replace(/^(\d+\.\d+\.\s+.+)$/gm, match => `\n### ${match}\n`)
-        // التعريفات (Word : description) → bullet list
         .replace(/^([A-Za-zÀ-ÿ0-9\s\/'-]+)\s:\s(.+)$/gm, '- **$1** : $2')
-        // تثبيت الفواصل
         .replace(/\n{2,}/g, '\n\n');
 };
 
-// Extracted static components object for ReactMarkdown
-// Anti-pattern fix: passing inline objects to components={} prop triggers heavy re-renders
 const markdownComponents = {
     h1: ({ node, ...props }) => <h1 className="text-2xl md:text-3xl font-bold my-4 text-black" {...props} />,
     h2: ({ node, ...props }) => <h2 className="text-xl md:text-2xl font-semibold my-3 text-gray-800" {...props} />,
@@ -66,11 +56,14 @@ const markdownComponents = {
 
 const Automations = () => {
     const [documentStatuses, setDocumentStatuses] = useState({});
-
     const [selectedDocId, setSelectedDocId] = useState(null);
 
-    // Fetch documents using React Query from the webhook
-    const { data: contractDocuments = [], isLoading: isLoadingContracts, error: errorContracts } = useDocuments();
+    // Fetch documents using React Query polling from the new webhook endpoint
+    const { 
+        data: contractDocuments = [], 
+        isLoading: isLoadingContracts, 
+        error: errorContracts 
+    } = useWebhookDocuments();
 
     // Ensure Documents are always an array
     const normalizedContracts = useMemo(() => {
@@ -80,88 +73,44 @@ const Automations = () => {
 
     // Map the API contract documents into the format expected by DocumentQueueTable
     const mappedQueueDocs = useMemo(() => {
-        if (!normalizedContracts.length) return [];
+        if (!normalizedContracts?.length) return [];
 
-        return normalizedContracts.flatMap(doc => {
-            const splitDocs = doc.content
-                .split(/\n{2,}(?=ACCORD-CADRE DE PRESTATION DE SERVICES)/g)
-                .filter(Boolean);
-
-            return splitDocs.map((content, index) => {
-                const docId = `${doc.documentId}-${index}`;
-                return {
-                    id: docId,
-                    fileName: `${doc.documentId}-${index}.md`,
-                    detectedClient: 'Unknown Content',
-                    contractType: 'Document',
-                    status: documentStatuses[docId] || 'Pending',
-                    uploadedTime: 'Just now',
-                    confidence: 95,
-                    extractedData: {
-                        parties: ['System', 'Client'],
-                        keyDates: ['N/A'],
-                        category: 'General',
-                        aiNotes: 'Webhook Data Sync Successful.'
-                    },
-                    content
-                };
-            });
-        });
+        return normalizedContracts.map(doc => ({
+            id: doc.documentId,
+            fileName: doc.fileName || `${doc.documentId}.md`,
+            detectedClient: "n8n Automation",
+            contractType: "Generated Document",
+            status: documentStatuses[doc.documentId] || "Ready",
+            uploadedTime: doc.receivedAt ? new Date(doc.receivedAt).toLocaleTimeString() : "Just now",
+            confidence: 100,
+            extractedData: {
+                parties: ["Extracted from n8n"],
+                keyDates: ["N/A"],
+                category: "Automation Results",
+                aiNotes: "Successfully received via webhook."
+            },
+            content: doc.content
+        }));
     }, [normalizedContracts, documentStatuses]);
 
-    // Mutation for starting automation
-    const { mutate: startAutomation, isPending } = useStartAutomation();
-
-    // Find selected document using useMemo to avoid searching loop on every render
+    // Find selected document using useMemo
     const selectedDoc = useMemo(() =>
         mappedQueueDocs.find(d => d.id === selectedDocId),
         [mappedQueueDocs, selectedDocId]
     );
 
     // Format content only when selected document changes
-    const formattedContent = useMemo(() =>
-        formatDocumentContent(selectedDoc?.content),
-        [selectedDoc?.content]
-    );
+    const formattedContent = useMemo(() => {
+        if (!selectedDoc?.content) return "";
+        return formatDocumentContent(selectedDoc.content);
+    }, [selectedDoc?.id]);
 
     const handleStartAutomation = () => {
-        // selectedDoc represents the currently active document loaded from your queue
-        if (!selectedDoc) return;
-
-        // Optimistically set the local UI status to 'Processing'
-        setDocumentStatuses((prev) => ({
-            ...prev,
-            [selectedDoc.id]: 'Processing'
-        }));
-
-        // Trigger the actual webhook request
-        startAutomation(
-            {
-                documentId: selectedDoc.id,
-                content: selectedDoc.content,
-                fileName: selectedDoc.fileName,
-            },
-            {
-                onSuccess: () => {
-                    // Update local status to 'Sent to Draft' on success
-                    setDocumentStatuses((prev) => ({
-                        ...prev,
-                        [selectedDoc.id]: 'Sent to Draft'
-                    }));
-                },
-                onError: () => {
-                    // Revert status to 'Failed' (or 'Pending') on error
-                    setDocumentStatuses((prev) => ({
-                        ...prev,
-                        [selectedDoc.id]: 'Failed'
-                    }));
-                }
-            }
-        );
+        console.log("Automation is now managed via incoming webhooks.");
     };
 
     const renderMainContent = () => {
-        if (isLoadingContracts) return <LoadingState />;
+        if (isLoadingContracts && normalizedContracts.length === 0) return <LoadingState />;
         if (errorContracts) return <ErrorState message={errorContracts.message} />;
 
         if (!selectedDocId) {
@@ -196,11 +145,12 @@ const Automations = () => {
                         </button>
                     </div>
 
-                    {/* Markdown Content Area */}
                     <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 bg-white text-black p-4 md:p-6 lg:p-8 rounded shadow-inner font-serif text-sm md:text-base leading-relaxed">
-                        <ReactMarkdown components={markdownComponents}>
-                            {formattedContent || "No content available."}
-                        </ReactMarkdown>
+                        {selectedDoc && (
+                            <ReactMarkdown components={markdownComponents}>
+                                {formattedContent}
+                            </ReactMarkdown>
+                        )}
                     </div>
                 </div>
 
@@ -209,7 +159,7 @@ const Automations = () => {
                     <AutomationReviewPanel
                         document={selectedDoc}
                         onStartAutomation={handleStartAutomation}
-                        isPending={isPending}
+                        isPending={false}
                     />
                 </div>
             </div>
