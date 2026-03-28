@@ -55,7 +55,15 @@ const DocumentQueueTable = ({ documents, selectedDocId, onSelectDocument }) => {
                                 </td>
                                 <td className="px-4 py-3 text-text-secondary">{doc.source}</td>
                                 <td className="px-4 py-3 text-white">{doc.detectedClient}</td>
-                                <td className="px-4 py-3 text-text-secondary">{doc.contractType}</td>
+                                <td className="px-4 py-3">
+                                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                                        doc.contractType === 'CRM Data' 
+                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                                        : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                                    }`}>
+                                        {doc.contractType}
+                                    </span>
+                                </td>
                                 <td className="px-4 py-3">
                                     <StatusPill status={doc.status} />
                                 </td>
