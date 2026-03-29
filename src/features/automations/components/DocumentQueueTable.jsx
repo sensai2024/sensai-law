@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { MdSearch, MdInsertDriveFile } from 'react-icons/md';
+import { MdSearch, MdInsertDriveFile, MdPlayArrow } from 'react-icons/md';
 import StatusPill from '../../../components/common/StatusPill';
 
-const DocumentQueueTable = ({ documents, selectedDocId, onSelectDocument }) => {
+const DocumentQueueTable = ({ documents, selectedDocId, onSelectDocument, onStartAutomation, currentType, isPending }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const filteredDocs = documents.filter(doc =>
@@ -34,7 +34,7 @@ const DocumentQueueTable = ({ documents, selectedDocId, onSelectDocument }) => {
                             <th className="px-4 py-3 text-left font-semibold">File Name</th>
                             <th className="px-4 py-3 text-left font-semibold">Source</th>
                             <th className="px-4 py-3 text-left font-semibold">Client</th>
-                            <th className="px-4 py-3 text-left font-semibold">Type</th>
+                            <th className="px-4 py-3 text-center font-semibold">Action / Type</th>
                             <th className="px-4 py-3 text-left font-semibold">Status</th>
                             <th className="px-4 py-3 text-left font-semibold">Uploaded</th>
                         </tr>
@@ -55,14 +55,38 @@ const DocumentQueueTable = ({ documents, selectedDocId, onSelectDocument }) => {
                                 </td>
                                 <td className="px-4 py-3 text-text-secondary">{doc.source}</td>
                                 <td className="px-4 py-3 text-white">{doc.detectedClient}</td>
-                                <td className="px-4 py-3">
-                                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                                        doc.contractType === 'CRM Data' 
-                                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
-                                        : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                                    }`}>
-                                        {doc.contractType}
-                                    </span>
+                                <td className="px-4 py-3 text-center">
+                                    {!doc.type ? (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onStartAutomation(doc);
+                                            }}
+                                            disabled={isPending}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
+                                                isPending 
+                                                ? 'bg-white/5 text-text-secondary cursor-not-allowed'
+                                                : currentType === 'crm'
+                                                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20'
+                                                    : 'bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20'
+                                            }`}
+                                        >
+                                            {isPending ? (
+                                                <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                            ) : (
+                                                <MdPlayArrow className="text-sm" />
+                                            )}
+                                            {isPending ? 'Starting...' : `Start ${currentType}`}
+                                        </button>
+                                    ) : (
+                                        <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
+                                            doc.type === 'crm' 
+                                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                                            : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                                        }`}>
+                                            {doc.type === 'crm' ? "CRM Data" : "Generated Contract"}
+                                        </span>
+                                    )}
                                 </td>
                                 <td className="px-4 py-3">
                                     <StatusPill status={doc.status} />

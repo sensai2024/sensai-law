@@ -84,10 +84,10 @@ const Automations = () => {
     const [toast, setToast] = useState(null);
 
     // Fetch documents
-    const { 
-        data: contractDocuments = [], 
-        isLoading: isLoadingContracts, 
-        error: errorContracts 
+    const {
+        data: contractDocuments = [],
+        isLoading: isLoadingContracts,
+        error: errorContracts
     } = useWebhookDocuments();
 
     // Start Automation Mutation
@@ -107,24 +107,27 @@ const Automations = () => {
         const mapped = normalizedContracts.map(doc => ({
             id: doc.documentId,
             fileName: doc.fileName || `${doc.documentId}.md`,
-            source: doc.type === 'crm' ? "CRM Flow" : "Contract Gen",
+            source: doc.type === 'crm' ? "CRM Flow" : (doc.type === 'contract' ? "Contract Gen" : "Incoming Webhook"),
             type: doc.type,
             detectedClient: "n8n Automation",
-            contractType: doc.type === 'crm' ? "CRM Data" : "Generated Contract",
+            contractType: doc.type === 'crm' ? "CRM Data" : (doc.type === 'contract' ? "Generated Contract" : "Incoming Document"),
             status: "Ready",
             uploadedTime: doc.receivedAt ? new Date(doc.receivedAt).toLocaleTimeString() : "Just now",
             confidence: 100,
             extractedData: {
                 parties: ["Extracted from n8n"],
                 keyDates: ["N/A"],
-                category: doc.type === 'crm' ? "CRM Update" : "Legal Document",
+                category: doc.type === 'crm' ? "CRM Update" : (doc.type === 'contract' ? "Legal Document" : "Pending Analysis"),
                 aiNotes: "Successfully received via webhook."
             },
             content: doc.content
         })).filter(doc => {
-            const docType = (doc.type || 'crm').toLowerCase();
+            const docType = (doc.type || '').toLowerCase(); // Empty if unassigned
             const currentFilterType = type.toLowerCase();
-            const isMatch = (currentFilterType === 'all' || docType === currentFilterType);
+            
+            // Show if it matches current tab or is unassigned
+            const isMatch = (docType === currentFilterType || !docType);
+            
             console.log(`[Automations] doc.id=${doc.id} mappedType=${docType} filterType=${currentFilterType} isMatch=${isMatch}`);
             return isMatch;
         });
@@ -143,7 +146,29 @@ const Automations = () => {
         return formatDocumentContent(selectedDoc.content);
     }, [selectedDoc]);
 
-    // Remove unused handleStartAutomation
+    const handleStartAutomation = (doc) => {
+        if (!doc) return;
+
+        triggerAutomation({
+            documentId: doc.id,
+            content: doc.content,
+            fileName: doc.fileName,
+            type: type // Trigger for the currently selected tab type
+        }, {
+            onSuccess: (data) => {
+                setToast({ 
+                    message: data.message || `Successfully started ${type.toUpperCase()} automation!`, 
+                    type: 'success' 
+                });
+            },
+            onError: (error) => {
+                setToast({ 
+                    message: error.message || "Failed to start automation. Please check n8n connection.", 
+                    type: 'error' 
+                });
+            }
+        });
+    };
 
     const renderMainContent = () => {
         if (isLoadingContracts && normalizedContracts.length === 0) return <LoadingState />;
@@ -157,22 +182,20 @@ const Automations = () => {
                         <div className="flex bg-surface-secondary border border-white/5 rounded-xl p-1 shadow-inner h-fit">
                             <button
                                 onClick={() => setType('crm')}
-                                className={`flex items-center gap-2 px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${
-                                    type === 'crm' 
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]' 
-                                    : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
-                                }`}
+                                className={`flex items-center gap-2 px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${type === 'crm'
+                                        ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]'
+                                        : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+                                    }`}
                             >
                                 <MdAutoGraph className={`text-lg transition-transform duration-300 ${type === 'crm' ? 'scale-110' : ''}`} />
                                 CRM Automation
                             </button>
                             <button
                                 onClick={() => setType('contract')}
-                                className={`flex items-center gap-2 px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${
-                                    type === 'contract' 
-                                    ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]' 
-                                    : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
-                                }`}
+                                className={`flex items-center gap-2 px-6 py-2 text-sm font-semibold rounded-lg transition-all duration-300 ${type === 'contract'
+                                        ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]'
+                                        : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+                                    }`}
                             >
                                 <MdDescription className={`text-lg transition-transform duration-300 ${type === 'contract' ? 'scale-110' : ''}`} />
                                 Contract Generator
@@ -196,6 +219,9 @@ const Automations = () => {
                                 documents={mappedQueueDocs}
                                 selectedDocId={selectedDocId}
                                 onSelectDocument={setSelectedDocId}
+                                onStartAutomation={handleStartAutomation}
+                                currentType={type}
+                                isPending={isStarting}
                             />
                         </div>
                     </div>
@@ -236,8 +262,8 @@ const Automations = () => {
                 <div className="w-full lg:w-[35%] lg:overflow-y-auto rounded-xl flex flex-col gap-4">
                     <AutomationReviewPanel
                         document={selectedDoc}
-                        onStartAutomation={() => setToast({ message: "Automation already processed", type: 'success' })}
-                        isPending={false}
+                        onStartAutomation={() => handleStartAutomation(selectedDoc)}
+                        isPending={isStarting}
                     />
                 </div>
             </div>
@@ -248,12 +274,12 @@ const Automations = () => {
         <div className="h-full flex flex-col p-4 md:p-6 lg:p-0 overflow-y-auto lg:overflow-hidden relative">
             <PageHeader />
             {renderMainContent()}
-            
+
             {toast && (
-                <Toast 
-                    message={toast.message} 
-                    type={toast.type} 
-                    onClose={() => setToast(null)} 
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
                 />
             )}
         </div>
