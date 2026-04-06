@@ -151,8 +151,6 @@ const Automations = () => {
 
         triggerAutomation({
             documentId: doc.id,
-            content: doc.content,
-            fileName: doc.fileName,
             type: type // Trigger for the currently selected tab type
         }, {
             onSuccess: (data) => {
