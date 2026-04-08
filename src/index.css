@@ -8,8 +8,8 @@
     font-weight: 400;
 
     color-scheme: dark;
-    color: #f8fafc;
-    background-color: #0f172a;
+    color: #f4f4f5;
+    background-color: #09090b;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -19,28 +19,36 @@
 
 body {
     margin: 0;
-    display: flex;
-    place-items: start;
     min-width: 320px;
     min-height: 100vh;
-    background-color: #0f172a;
+    background-color: #09090b;
+    color: #f4f4f5;
 }
 
-/* Custom scrollbar for dark theme */
+#root {
+    min-height: 100vh;
+}
+
+/* Custom scrollbar for premium dark theme */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-    background: #0f172a;
+    background: #09090b;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #334155;
-    border-radius: 4px;
+    background: #27272a;
+    border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #475569;
+    background: #3f3f46;
+}
+
+/* Transition utility for smooth UI */
+.transition-glass {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }

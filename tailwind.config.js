@@ -7,27 +7,41 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Legal Tech Dark Theme Palette
-        background: '#0f172a', // Slate 950
-        surface: '#1e293b',    // Slate 800
-        surfaceHighlight: '#334155', // Slate 700
-        primary: '#3b82f6',    // Blue 500
-        primaryHover: '#2563eb', // Blue 600
-        border: '#1e293b',     // Slate 800
+        // LegalTech Premium SaaS Palette
+        background: '#09090b', // Deep Charcoal
+        surface: {
+          DEFAULT: '#121214',  // Slightly lighter charcoal
+          highlight: '#1c1c1f', // Elevation surface
+          accent: '#27272a',    // Border/Action surface
+        },
+        primary: {
+          DEFAULT: '#cfb53b',   // Gold
+          hover: '#eab308',     // Amber
+          muted: '#85732a',     // Darkened gold
+        },
+        secondary: {
+          DEFAULT: '#3b82f6',   // Secondary Blue
+          hover: '#2563eb',
+        },
+        border: '#27272a',      // Subtle dark border
         text: {
-          primary: '#f8fafc',  // Slate 50
-          secondary: '#94a3b8', // Slate 400
-          muted: '#64748b',    // Slate 500
+          primary: '#f4f4f5',   // Off-white
+          secondary: '#a1a1aa', // Muted silver
+          muted: '#71717a',    // Dim gray
         },
         status: {
-          success: '#10b981', // Emerald 500
-          warning: '#f59e0b', // Amber 500
-          error: '#ef4444',   // Red 500
-          info: '#3b82f6',    // Blue 500
+          success: '#10b981',   // Emerald
+          error: '#ef4444',     // Red
+          warning: '#f59e0b',   // Amber
+          processing: '#3b82f6', // Blue
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      boxShadow: {
+        'premium': '0 4px 20px -5px rgba(0, 0, 0, 0.7)',
+        'gold-glow': '0 0 15px -3px rgba(207, 181, 59, 0.3)',
       }
     },
   },
