@@ -53,22 +53,20 @@ The Automation Hub is a premium, enterprise-grade dashboard designed for **Altat
 The project implements a **Feature-Based Scalable Structure**, isolating domain logic to ensure maintainability.
 
 ### 3.1 Folder-by-Folder Breakdown
-- `src/features/`: Domain-specific business logic and pages.
+- `src/features/`: Domain-specific business logic and pages. Contains hooks, services, sub-components, and mappers.
 - `src/components/ui/`: Atomic, reusable UI primitives.
 - `src/components/layout/`: Global layout components (Sidebar, AppLayout).
-- `src/lib/`: Shared utilities and helper functions (e.g., `cn` for Tailwind).
-- `src/mock/`: Centralized data store simulating API responses.
+- `src/lib/`: Shared utilities and helper functions (e.g., Supabase client).
 - `src/routes/`: Routing configuration and navigation mapping.
-- `src/hooks/`: (Optional) Shared state and UI hooks.
 
 ### 3.2 Responsibility of Each Layer
 | Layer | Responsibility |
 | :--- | :--- |
 | **Components (UI)** | Presentation only. Should be data-agnostic and highly reusable. |
-| **Features** | Domain logic. Combines UI components with specific feature data. |
-| **Mock** | Simulates the backend. Provides the "Single Source of Truth" for data during UI development. |
+| **Features** | Domain logic. Exposes purely through React Query `hooks.js`. Provides transformations via `mappers.js`. |
+| **Services** | Contained inside features. The ONLY place where `supabase` is imported. |
 | **Routes** | Manage application state via URLs and wrap pages in layouts. |
-| **Lib** | Tech-side helpers that don't belong to any specific feature. |
+| **Lib** | Tech-side helpers (e.g., DB connection, class mergers). |
 
 ---
 
@@ -134,12 +132,15 @@ The project implements a **Feature-Based Scalable Structure**, isolating domain 
 ## 7. State Management & Data Flow
 
 ### 7.1 Approach
-- **Data State**: currently managed via `src/mock/data.js`.
-- **Async Simulation**: `React Query` wraps page-level imports to ensure the app is ready for `fetch()` / `axios` integration.
+- **Data State**: Handled natively by `@tanstack/react-query` calling our service layer.
+- **Service Layer**: Pure fetch/mutation commands directly hitting `Supabase`.
 - **UI State**: Handled locally via `useState` for things like filters and toggle states.
 
-### 7.2 Mock Data Layer
-Mock data is organized into named exports within `src/mock/data.js`, allowing features to import exactly what they need while sharing a single source for metrics.
+### 7.2 Strict Serverless Flow
+1. **Component**: Requests data using a custom hook (e.g., `useClientsListQuery`).
+2. **Hook**: Manages loading state and error states. Calls the service.
+3. **Service**: Fetches data from `Supabase`.
+4. **Mapper**: Converts the DB Row response into a typed frontend model logic.
 
 ---
 
@@ -155,8 +156,8 @@ Mock data is organized into named exports within `src/mock/data.js`, allowing fe
 ## 9. Scalability & Future Integration
 
 ### 9.1 Path to Production
-1. **API Integration**: Swap `DASHBOARD_STATS` with `useQuery(['dashboard-stats'], fetchStats)` in feature pages.
-2. **Authentication**: Wrap `AppRoutes` in an `AuthProvider` and update the sidebar for user profiles.
+1. **Migrations & Schemas**: Generate strict TypeScript interfaces using Supabase CLI.
+2. **Authentication**: Set up RLS (Row Level Security) and handle login dynamically.
 3. **Real-time**: Integrate WebSockets for live pipeline updates on the Dashboard and Errors pages.
 
 ### 9.2 Safe Extension
@@ -170,6 +171,10 @@ New features should be added as new folders in `src/features/`. Any shared UI co
 ```bash
 # Install dependencies
 npm install
+
+# Set up environment
+cp .env.example .env
+# Populate VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY inside .env
 
 # Run development server
 npm run dev

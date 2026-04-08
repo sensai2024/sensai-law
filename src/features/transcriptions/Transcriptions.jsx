@@ -1,17 +1,35 @@
+// src/features/transcriptions/Transcriptions.jsx
 import React from 'react';
 import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ActionButton from '../../components/ui/ActionButton';
 import { FileAudio, Play, MoreVertical, Search, Filter } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useTranscriptionsQuery } from './hooks';
 
 const Transcriptions = () => {
-    const transcriptions = [
-        { id: 1, name: 'Client Interview - Dupont', date: '2024-04-07 14:02', duration: '12:45', status: 'Processing' },
-        { id: 2, name: 'Witness Statement - Case #442', date: '2024-04-06 11:20', duration: '45:10', status: 'Generated' },
-        { id: 3, name: 'Legal Consultant Briefing', date: '2024-04-05 09:15', duration: '08:32', status: 'Generated' },
-        { id: 4, name: 'Court Hearing Recording - Part 1', date: '2024-04-04 16:44', duration: '01:24:12', status: 'Failed' },
-    ];
+    const { data: transcriptions, isLoading, isError } = useTranscriptionsQuery();
+
+    if (isLoading) {
+        return (
+            <div className="space-y-8 pb-10 animate-pulse">
+                <div className="h-16 bg-surface p-4 rounded-xl"></div>
+                <div className="grid grid-cols-1 gap-4">
+                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-surface-elevated rounded-xl"></div>)}
+                </div>
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+            <div className="p-6 bg-red-900/20 text-red-400 rounded-xl border border-red-900/50">
+                Failed to load transcriptions.
+            </div>
+        );
+    }
+
+    const safeTranscriptions = transcriptions || [];
 
     return (
         <div className="space-y-8 pb-10">
@@ -33,14 +51,14 @@ const Transcriptions = () => {
 
             {/* Transcription Cards */}
             <div className="grid grid-cols-1 gap-4">
-                {transcriptions.map((t) => (
+                {safeTranscriptions.map((t) => (
                     <div key={t.id} className="bg-surface rounded-xl border border-border p-5 hover:border-primary/20 transition-all group">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-5">
                                 <div className={cn(
                                     "w-12 h-12 rounded-xl flex items-center justify-center transition-colors shadow-soft",
-                                    t.status === 'Processing' ? 'bg-status-processing/10 text-status-processing animate-pulse' : 
-                                    t.status === 'Failed' ? 'bg-status-error/10 text-status-error' : 'bg-primary/10 text-primary'
+                                    t.status === 'Processing' || t.status === 'working' ? 'bg-status-processing/10 text-status-processing animate-pulse' : 
+                                    t.status === 'Failed' || t.status === 'failed' ? 'bg-status-error/10 text-status-error' : 'bg-primary/10 text-primary'
                                 )}>
                                     <FileAudio size={24} />
                                 </div>
@@ -61,7 +79,7 @@ const Transcriptions = () => {
                                    <StatusBadge status={t.status} />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    {t.status === 'Generated' && (
+                                    {(t.status === 'Generated' || t.status === 'success') && (
                                         <ActionButton variant="ghost" size="sm" className="hidden sm:flex">View Transcript</ActionButton>
                                     )}
                                     <ActionButton variant="ghost" size="sm" icon={Play} className="h-9 w-9 !p-0" />
@@ -74,7 +92,7 @@ const Transcriptions = () => {
             </div>
 
             {/* Empty State Mockup */}
-            {transcriptions.length === 0 && (
+            {safeTranscriptions.length === 0 && (
                 <div className="h-96 flex flex-col items-center justify-center text-center space-y-4 border-2 border-dashed border-border rounded-2xl">
                     <div className="p-6 bg-surface-accent rounded-full text-text-muted">
                         <FileAudio size={48} />

@@ -7,7 +7,8 @@ import {
   FileSignature, 
   AlertCircle,
   Database,
-  History
+  History,
+  Users
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -16,10 +17,10 @@ const SidebarNav = () => {
     { label: 'OVERVIEW', type: 'category' },
     { label: 'Dashboard', path: '/', icon: LayoutDashboard },
     { label: 'Transcriptions', path: '/transcriptions', icon: FileText, counter: 3 },
-    
     { label: 'PIPELINES', type: 'category' },
     { label: 'CRM Approval', path: '/crm-approval', icon: UserCheck, counter: 2 },
     { label: 'Contracts', path: '/contracts', icon: FileSignature },
+    { label: 'Clients', path: '/clients', icon: Users },
     { label: 'Errors', path: '/errors', icon: AlertCircle, counter: 1 },
   ];
 

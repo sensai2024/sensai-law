@@ -8,6 +8,8 @@ const CrmApprovals = React.lazy(() => import('../features/crm-approvals/CrmAppro
 const Contracts = React.lazy(() => import('../features/contracts/Contracts'));
 const Transcriptions = React.lazy(() => import('../features/transcriptions/Transcriptions'));
 const Errors = React.lazy(() => import('../features/errors/Errors'));
+const ClientsList = React.lazy(() => import('../features/clients/ClientsList'));
+const ClientDetails = React.lazy(() => import('../features/clients/ClientDetails'));
 
 const AppRoutes = () => {
     return (
@@ -19,6 +21,8 @@ const AppRoutes = () => {
                     <Route path="/contracts" element={<Contracts />} />
                     <Route path="/transcriptions" element={<Transcriptions />} />
                     <Route path="/errors" element={<Errors />} />
+                    <Route path="/clients" element={<ClientsList />} />
+                    <Route path="/clients/:clientId" element={<ClientDetails />} />
                 </Route>
             </Routes>
         </React.Suspense>
