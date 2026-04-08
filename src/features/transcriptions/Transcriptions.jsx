@@ -3,7 +3,7 @@ import React from 'react';
 import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ActionButton from '../../components/ui/ActionButton';
-import { FileAudio, Play, MoreVertical, Search, Filter } from 'lucide-react';
+import { FileText, Play, MoreVertical, Search, Filter } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTranscriptionsQuery } from './hooks';
 
@@ -45,7 +45,7 @@ const Transcriptions = () => {
                 </div>
                 <div className="flex items-center gap-3">
                     <ActionButton variant="secondary" size="md" icon={Filter}>Filters</ActionButton>
-                    <ActionButton variant="primary" size="md">Upload Audio</ActionButton>
+
                 </div>
             </div>
 
@@ -60,7 +60,7 @@ const Transcriptions = () => {
                                     t.status === 'Processing' || t.status === 'working' ? 'bg-status-processing/10 text-status-processing animate-pulse' : 
                                     t.status === 'Failed' || t.status === 'failed' ? 'bg-status-error/10 text-status-error' : 'bg-primary/10 text-primary'
                                 )}>
-                                    <FileAudio size={24} />
+                                    <FileText size={24} />
                                 </div>
                                 <div className="space-y-1">
                                     <h4 className="text-base font-bold text-text-primary group-hover:text-primary transition-colors cursor-pointer">
@@ -95,15 +95,15 @@ const Transcriptions = () => {
             {safeTranscriptions.length === 0 && (
                 <div className="h-96 flex flex-col items-center justify-center text-center space-y-4 border-2 border-dashed border-border rounded-2xl">
                     <div className="p-6 bg-surface-accent rounded-full text-text-muted">
-                        <FileAudio size={48} />
+                        <FileText size={48} />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-text-primary">No transcriptions found</h3>
-                        <p className="text-sm text-text-secondary max-w-xs mx-auto">
-                            Upload your legal recordings to start the automated transcription and analysis pipeline.
+                        <h3 className="text-lg font-bold text-text-primary">No transcript records found</h3>
+                        <p className="text-sm text-text-secondary max-w-sm mx-auto mt-2">
+                            When new legal meeting data is added to Supabase, it will appear here automatically. 
+                            Double check your applied filters or system permissions if you expect to see running pipelines.
                         </p>
                     </div>
-                    <ActionButton variant="primary" size="md">Upload First Audio</ActionButton>
                 </div>
             )}
         </div>
