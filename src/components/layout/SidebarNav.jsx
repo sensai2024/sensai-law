@@ -11,17 +11,20 @@ import {
   Users
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useSidebarCountsQuery } from './hooks';
 
 const SidebarNav = () => {
+  const { data: counts, isLoading } = useSidebarCountsQuery();
+
   const navItems = [
     { label: 'OVERVIEW', type: 'category' },
     { label: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { label: 'Transcriptions', path: '/transcriptions', icon: FileText, counter: 3 },
+    { label: 'Transcriptions', path: '/transcriptions', icon: FileText, counter: counts?.transcriptions ?? 0, showBadge: true },
     { label: 'PIPELINES', type: 'category' },
-    { label: 'CRM Approval', path: '/crm-approval', icon: UserCheck, counter: 2 },
-    { label: 'Contracts', path: '/contracts', icon: FileSignature },
-    { label: 'Clients', path: '/clients', icon: Users },
-    { label: 'Errors', path: '/errors', icon: AlertCircle, counter: 1 },
+    { label: 'CRM Approval', path: '/crm-approval', icon: UserCheck, counter: counts?.crmApprovals ?? 0, showBadge: true },
+    { label: 'Contracts', path: '/contracts', icon: FileSignature, counter: counts?.contracts ?? 0, showBadge: true },
+    { label: 'Clients', path: '/clients', icon: Users, counter: counts?.clients ?? 0, showBadge: true },
+    { label: 'Errors', path: '/errors', icon: AlertCircle, counter: counts?.errors ?? 0, showBadge: true },
   ];
 
   return (
@@ -67,12 +70,14 @@ const SidebarNav = () => {
                 )} />
                 {item.label}
               </div>
-              {item.counter && (
+              {item.showBadge && (
                 <span className={cn(
-                  'flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold',
-                  item.label === 'Errors' ? 'bg-status-error text-white' : 'bg-primary/20 text-primary'
+                  'flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full text-[10px] font-bold',
+                  isLoading ? 'bg-surface-elevated animate-pulse text-transparent' :
+                  item.label === 'Errors' && item.counter > 0 ? 'bg-status-error text-white' : 
+                  'bg-primary/20 text-primary'
                 )}>
-                  {item.counter}
+                  {isLoading ? '0' : item.counter}
                 </span>
               )}
             </NavLink>

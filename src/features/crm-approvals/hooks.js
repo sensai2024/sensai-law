@@ -21,6 +21,7 @@ export function useUpdateApprovalMutation() {
     mutationFn: ({ id, status }) => updateCrmApprovalStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: crmApprovalKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['sidebarCounts'] });
     }
   });
 }

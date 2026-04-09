@@ -21,6 +21,7 @@ export function useRetryErrorMutation() {
     mutationFn: (id) => updatePipelineRunStatus(id, 'retrying'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: errorsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['sidebarCounts'] });
     }
   });
 }

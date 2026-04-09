@@ -21,6 +21,7 @@ export function useRetryContractMutation() {
     mutationFn: (id) => updateContractStatus(id, 'generated'), // Fake retry by updating to generated 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: contractsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['sidebarCounts'] });
     }
   });
 }

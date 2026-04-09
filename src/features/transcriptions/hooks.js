@@ -1,7 +1,7 @@
 // src/features/transcriptions/hooks.js
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { transcriptionsKeys } from './queryKeys';
-import { getTranscriptions } from './services';
+import { getTranscriptions, getTranscriptionById, approveTranscription } from './services';
 import { mapTranscriptionsData } from './mappers';
 
 export function useTranscriptionsQuery() {
@@ -13,3 +13,24 @@ export function useTranscriptionsQuery() {
     }
   });
 }
+
+export function useTranscriptionDetailsQuery(id) {
+  return useQuery({
+    queryKey: transcriptionsKeys.detail(id),
+    queryFn: () => getTranscriptionById(id),
+    enabled: !!id,
+  });
+}
+
+export function useApproveTranscriptionMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (transcription) => approveTranscription(transcription),
+    onSuccess: () => {
+      // Invalidate both list and specific detail to reflect status changes if any
+      queryClient.invalidateQueries({ queryKey: transcriptionsKeys.all });
+    },
+  });
+}
+

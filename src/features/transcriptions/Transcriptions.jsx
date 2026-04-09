@@ -1,21 +1,60 @@
 // src/features/transcriptions/Transcriptions.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ActionButton from '../../components/ui/ActionButton';
-import { FileText, Play, MoreVertical, Search, Filter } from 'lucide-react';
+import SlidePanel from '../../components/ui/SlidePanel';
+import { 
+    FileText, 
+    Play, 
+    MoreVertical, 
+    Search, 
+    Filter, 
+    Calendar, 
+    User, 
+    Mail, 
+    RefreshCcw,
+    CheckCircle2,
+    AlertCircle,
+    Loader2
+} from 'lucide-react';
 import { cn } from '../../lib/utils';
-import { useTranscriptionsQuery } from './hooks';
+import { useTranscriptionsQuery, useApproveTranscriptionMutation } from './hooks';
+import ReactMarkdown from 'react-markdown';
 
 const Transcriptions = () => {
-    const { data: transcriptions, isLoading, isError } = useTranscriptionsQuery();
+    const [selectedTranscription, setSelectedTranscription] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    const { data: transcriptions, isLoading, isError, refetch } = useTranscriptionsQuery();
+    const approveMutation = useApproveTranscriptionMutation();
+
+    const handleOpenDetails = (transcription) => {
+        setSelectedTranscription(transcription);
+    };
+
+    const handleCloseDetails = () => {
+        setSelectedTranscription(null);
+    };
+
+    const handleApprove = async () => {
+        if (!selectedTranscription) return;
+        
+        try {
+            await approveMutation.mutateAsync(selectedTranscription);
+            // Optional: Show success toast here if a toast system exists
+            handleCloseDetails();
+        } catch (error) {
+            console.error('Approval failed:', error);
+        }
+    };
 
     if (isLoading) {
         return (
             <div className="space-y-8 pb-10 animate-pulse">
-                <div className="h-16 bg-surface p-4 rounded-xl"></div>
+                <div className="h-16 bg-surface p-4 rounded-xl border border-border"></div>
                 <div className="grid grid-cols-1 gap-4">
-                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-surface-elevated rounded-xl"></div>)}
+                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-surface rounded-xl border border-border"></div>)}
                 </div>
             </div>
         );
@@ -23,67 +62,124 @@ const Transcriptions = () => {
 
     if (isError) {
         return (
-            <div className="p-6 bg-red-900/20 text-red-400 rounded-xl border border-red-900/50">
-                Failed to load transcriptions.
+            <div className="p-8 bg-status-error/10 text-status-error rounded-2xl border border-status-error/20 flex flex-col items-center gap-4">
+                <AlertCircle size={48} />
+                <div className="text-center">
+                    <h3 className="text-lg font-bold">Failed to load transcriptions</h3>
+                    <p className="opacity-80">There was an error connecting to Supabase. please try again.</p>
+                </div>
+                <ActionButton onClick={() => refetch()} variant="secondary" size="md">Retry Connection</ActionButton>
             </div>
         );
     }
 
-    const safeTranscriptions = transcriptions || [];
+    const filteredTranscriptions = (transcriptions || []).filter(t => 
+        t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (t.clientName && t.clientName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (t.clientEmail && t.clientEmail.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
+    const needsApproval = (status) => {
+        const s = status?.toLowerCase();
+        return s === 'generated' || s === 'pending' || s === 'working' || s === 'processing' || s === 'processed' || s === 'ready';
+    };
+
 
     return (
         <div className="space-y-8 pb-10">
             {/* Header / Actions */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-4 rounded-xl border border-border">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-4 rounded-xl border border-border shadow-soft">
                 <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted transition-colors group-focus-within:text-primary" size={16} />
                     <input 
                         type="text" 
-                        placeholder="Search transcriptions..." 
-                        className="w-full bg-background border border-border rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-colors"
+                        placeholder="Search by title, client or email..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all font-medium"
                     />
                 </div>
                 <div className="flex items-center gap-3">
                     <ActionButton variant="secondary" size="md" icon={Filter}>Filters</ActionButton>
-
+                    <div className="h-8 w-[1px] bg-border mx-1 hidden md:block" />
+                    <p className="text-xs text-text-muted font-bold uppercase tracking-wider px-2">
+                        {filteredTranscriptions.length} Records
+                    </p>
                 </div>
             </div>
 
-            {/* Transcription Cards */}
+            {/* Transcription List */}
             <div className="grid grid-cols-1 gap-4">
-                {safeTranscriptions.map((t) => (
-                    <div key={t.id} className="bg-surface rounded-xl border border-border p-5 hover:border-primary/20 transition-all group">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-5">
+                {filteredTranscriptions.map((t) => (
+                    <div 
+                        key={t.id} 
+                        onClick={() => handleOpenDetails(t)}
+                        className="bg-surface rounded-xl border border-border p-5 hover:border-primary/40 hover:shadow-premium transition-all group cursor-pointer relative overflow-hidden"
+                    >
+                        {/* Status bar left decoration */}
+                        <div className={cn(
+                            "absolute left-0 top-0 bottom-0 w-1",
+                            t.status?.toLowerCase() === 'approved' ? 'bg-status-success' : 
+                            needsApproval(t.status) ? 'bg-primary' : 'bg-status-error'
+                        )} />
+
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                            <div className="flex items-start gap-5">
                                 <div className={cn(
-                                    "w-12 h-12 rounded-xl flex items-center justify-center transition-colors shadow-soft",
-                                    t.status === 'Processing' || t.status === 'working' ? 'bg-status-processing/10 text-status-processing animate-pulse' : 
-                                    t.status === 'Failed' || t.status === 'failed' ? 'bg-status-error/10 text-status-error' : 'bg-primary/10 text-primary'
+                                    "w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-soft shrink-0",
+                                    needsApproval(t.status) ? 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white' : 
+                                    t.status?.toLowerCase() === 'failed' ? 'bg-status-error/10 text-status-error' : 'bg-status-success/10 text-status-success'
                                 )}>
                                     <FileText size={24} />
                                 </div>
                                 <div className="space-y-1">
-                                    <h4 className="text-base font-bold text-text-primary group-hover:text-primary transition-colors cursor-pointer">
+                                    <h4 className="text-base font-bold text-text-primary group-hover:text-primary transition-colors line-clamp-1">
                                         {t.name}
                                     </h4>
-                                    <div className="flex items-center gap-3 text-xs text-text-muted">
-                                        <span>{t.date}</span>
-                                        <span className="w-1 h-1 rounded-full bg-border" />
-                                        <span>{t.duration}</span>
+                                    <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-text-muted font-medium">
+                                        <div className="flex items-center gap-1.5">
+                                            <Calendar size={14} className="text-text-muted/60" />
+                                            {t.date}
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <User size={14} className="text-text-muted/60" />
+                                            {t.clientName || 'No Client'}
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <Mail size={14} className="text-text-muted/60" />
+                                            {t.clientEmail || 'No Email'}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-6">
-                                <div className="hidden md:block">
-                                   <StatusBadge status={t.status} />
+                            <div className="flex items-center justify-between lg:justify-end gap-8 border-t lg:border-t-0 pt-4 lg:pt-0 border-border/50">
+                                <div className="flex items-center gap-6">
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className="text-[10px] font-bold text-text-muted uppercase tracking-tighter">Retries</span>
+                                        <span className="text-xs font-bold font-mono bg-surface-accent px-2 py-0.5 rounded-md border border-border">
+                                            {t.retryCount}
+                                        </span>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                        <span className="text-[10px] font-bold text-text-muted uppercase tracking-tighter">Status</span>
+                                        <StatusBadge status={t.status} />
+                                    </div>
                                 </div>
+                                
                                 <div className="flex items-center gap-2">
-                                    {(t.status === 'Generated' || t.status === 'success') && (
-                                        <ActionButton variant="ghost" size="sm" className="hidden sm:flex">View Transcript</ActionButton>
-                                    )}
-                                    <ActionButton variant="ghost" size="sm" icon={Play} className="h-9 w-9 !p-0" />
-                                    <ActionButton variant="ghost" size="sm" icon={MoreVertical} className="h-9 w-9 !p-0" />
+                                    <ActionButton 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        icon={Play} 
+                                        className="h-10 w-10 !p-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors" 
+                                    />
+                                    <ActionButton 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        icon={MoreVertical} 
+                                        className="h-10 w-10 !p-0 rounded-full" 
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -91,19 +187,123 @@ const Transcriptions = () => {
                 ))}
             </div>
 
-            {/* Empty State Mockup */}
-            {safeTranscriptions.length === 0 && (
-                <div className="h-96 flex flex-col items-center justify-center text-center space-y-4 border-2 border-dashed border-border rounded-2xl">
-                    <div className="p-6 bg-surface-accent rounded-full text-text-muted">
+            {/* Transcription Details Panel */}
+            <SlidePanel
+                isOpen={!!selectedTranscription}
+                onClose={handleCloseDetails}
+                title="Transcription Review"
+                footer={
+                    <>
+                        <ActionButton 
+                            variant="secondary" 
+                            size="md" 
+                            onClick={handleCloseDetails}
+                            disabled={approveMutation.isPending}
+                        >
+                            Cancel
+                        </ActionButton>
+                        {needsApproval(selectedTranscription?.status) && (
+                            <ActionButton 
+                                variant="primary" 
+                                size="md" 
+                                icon={approveMutation.isPending ? Loader2 : CheckCircle2}
+                                onClick={handleApprove}
+                                disabled={approveMutation.isPending}
+                                className={cn(approveMutation.isPending && "animate-pulse")}
+                            >
+                                {approveMutation.isPending ? 'Sending Approval...' : 'Approve Transcription'}
+                            </ActionButton>
+                        )}
+                        {selectedTranscription?.status?.toLowerCase() === 'approved' && (
+                            <div className="flex items-center gap-2 text-status-success text-sm font-bold bg-status-success/10 px-4 py-2 rounded-lg border border-status-success/20">
+                                <CheckCircle2 size={18} />
+                                Already Approved
+                            </div>
+                        )}
+                    </>
+                }
+            >
+                {selectedTranscription && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                        {/* Metadata Header */}
+                        <div className="bg-surface-elevated rounded-2xl p-6 border border-border shadow-soft space-y-4">
+                            <div className="flex items-start justify-between">
+                                <h3 className="text-xl font-black text-text-primary leading-tight">
+                                    {selectedTranscription.title}
+                                </h3>
+                                <StatusBadge status={selectedTranscription.status} />
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-6 pt-2">
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Client Name</span>
+                                    <p className="text-sm font-bold text-text-secondary flex items-center gap-2">
+                                        <User size={14} className="text-primary" />
+                                        {selectedTranscription.clientName || 'N/A'}
+                                    </p>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Client Email</span>
+                                    <p className="text-sm font-bold text-text-secondary flex items-center gap-2">
+                                        <Mail size={14} className="text-primary" />
+                                        {selectedTranscription.clientEmail || 'N/A'}
+                                    </p>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Meeting Date</span>
+                                    <p className="text-sm font-bold text-text-secondary flex items-center gap-2">
+                                        <Calendar size={14} className="text-primary" />
+                                        {selectedTranscription.date}
+                                    </p>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Retries</span>
+                                    <p className="text-sm font-bold text-text-secondary flex items-center gap-2">
+                                        <RefreshCcw size={14} className="text-primary" />
+                                        {selectedTranscription.retryCount} attempts
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Content Section */}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <h4 className="text-sm font-bold text-text-muted uppercase tracking-widest">Transcription Content</h4>
+                                <span className="text-[10px] font-medium px-2 py-0.5 bg-surface-accent rounded border border-border text-text-muted">
+                                    Markdown Supported
+                                </span>
+                            </div>
+                            <div className="prose prose-invert prose-zinc max-w-none bg-background rounded-2xl p-8 border border-border shadow-inner min-h-[400px]">
+                                {selectedTranscription.content ? (
+                                    <ReactMarkdown>{selectedTranscription.content}</ReactMarkdown>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-64 text-text-muted opacity-50 space-y-4">
+                                        <FileText size={48} />
+                                        <p className="font-medium italic">No content available for this transcription.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </SlidePanel>
+
+            {/* Empty State */}
+            {filteredTranscriptions.length === 0 && (
+                <div className="h-96 flex flex-col items-center justify-center text-center space-y-4 border-2 border-dashed border-border rounded-2xl bg-surface/50">
+                    <div className="p-6 bg-surface-accent rounded-full text-text-muted shadow-soft">
                         <FileText size={48} />
                     </div>
                     <div>
                         <h3 className="text-lg font-bold text-text-primary">No transcript records found</h3>
                         <p className="text-sm text-text-secondary max-w-sm mx-auto mt-2">
-                            When new legal meeting data is added to Supabase, it will appear here automatically. 
-                            Double check your applied filters or system permissions if you expect to see running pipelines.
+                            {searchQuery ? "Try adjusting your search terms to find what you're looking for." : "When new meeting data is added to Supabase, it will appear here automatically."}
                         </p>
                     </div>
+                    {searchQuery && (
+                        <ActionButton onClick={() => setSearchQuery('')} variant="secondary" size="md">Clear Search</ActionButton>
+                    )}
                 </div>
             )}
         </div>
@@ -111,3 +311,4 @@ const Transcriptions = () => {
 };
 
 export default Transcriptions;
+
