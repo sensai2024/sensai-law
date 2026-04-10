@@ -5,33 +5,46 @@ import {
   RotateCcw, 
   Eye, 
   FileSignature, 
-  Check, 
-  X, 
   Save, 
   ArrowLeft,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  History,
+  Layers
 } from 'lucide-react';
 import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ActionButton from '../../components/ui/ActionButton';
 import StatCard from '../../components/ui/StatCard';
 import { 
-  useContractsQuery, 
+  useContractsGroupedQuery, 
+  useContractVersionsQuery,
   useContractDetailsQuery, 
   useRegenerateContractMutation, 
   useSaveEditedContractMutation 
 } from './hooks';
 
 const Contracts = () => {
-  const [selectedContractId, setSelectedContractId] = useState(null);
-  const { data: listData, isLoading: isListLoading, isError: isListError } = useContractsQuery();
+  const [selectedTranscriptId, setSelectedTranscriptId] = useState(null);
+  const [selectedVersionId, setSelectedVersionId] = useState(null);
+  
+  const { data: listData, isLoading: isListLoading, isError: isListError } = useContractsGroupedQuery();
 
-  if (selectedContractId) {
+  if (selectedVersionId) {
     return (
       <ContractDetails 
-        contractId={selectedContractId} 
-        onBack={() => setSelectedContractId(null)} 
+        contractId={selectedVersionId} 
+        onBack={() => setSelectedVersionId(null)} 
+      />
+    );
+  }
+
+  if (selectedTranscriptId) {
+    return (
+      <TranscriptVersionsView 
+        transcriptId={selectedTranscriptId}
+        onBack={() => setSelectedTranscriptId(null)}
+        onSelectVersion={(vid) => setSelectedVersionId(vid)}
       />
     );
   }
@@ -56,7 +69,7 @@ const Contracts = () => {
     );
   }
 
-  const { contracts, kpis } = listData || { contracts: [], kpis: [] };
+  const { groupedEntries, kpis } = listData || { groupedEntries: [], kpis: [] };
 
   return (
     <div className="space-y-8 pb-10">
@@ -73,48 +86,55 @@ const Contracts = () => {
         ))}
       </div>
 
-      <SectionCard title={`CONTRACTS FOR REVIEW (${contracts.length})`}>
-        {contracts.length > 0 ? (
+      <SectionCard title={`GROUPED CONTRACT THREADS (${groupedEntries.length})`}>
+        {groupedEntries.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border text-[10px] font-bold text-text-muted uppercase tracking-widest">
-                  <th className="pb-4 pt-2 font-bold px-2">Contract Family</th>
+                  <th className="pb-4 pt-2 font-bold px-2">Transcript ID</th>
+                  <th className="pb-4 pt-2 font-bold px-2">Family (Latest)</th>
                   <th className="pb-4 pt-2 font-bold px-2">Audience</th>
-                  <th className="pb-4 pt-2 font-bold px-2">Score</th>
-                  <th className="pb-4 pt-2 font-bold px-2">Tokens</th>
-                  <th className="pb-4 pt-2 font-bold px-2">Cost</th>
-                  <th className="pb-4 pt-2 font-bold px-2">Created At</th>
+                  <th className="pb-4 pt-2 font-bold px-2 text-center">Versions</th>
+                  <th className="pb-4 pt-2 font-bold px-2">Latest Update</th>
                   <th className="pb-4 pt-2 font-bold px-2">Status</th>
                   <th className="pb-4 pt-2 font-bold px-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {contracts.map((contract) => (
-                  <tr key={contract.id} className="group hover:bg-surface-highlight/5 transition-colors">
+                {groupedEntries.map((entry) => (
+                  <tr key={entry.transcript_id} className="group hover:bg-surface-highlight/5 transition-colors">
                     <td className="py-4 px-2">
-                       <span className="text-sm font-semibold text-text-primary">
-                        {contract.type}
+                       <span className="text-sm font-mono text-text-muted">
+                        {entry.transcript_id.substring(0, 8)}...
                       </span>
                     </td>
-                    <td className="py-4 px-2 text-xs text-text-secondary">{contract.audience || 'N/A'}</td>
-                    <td className="py-4 px-2 text-xs font-mono font-bold text-text-primary">
-                      {contract.score ? `${(contract.score * 100).toFixed(1)}%` : 'N/A'}
-                    </td>
-                    <td className="py-4 px-2 text-xs text-text-muted">{contract.tokens?.toLocaleString() || '0'}</td>
-                    <td className="py-4 px-2 text-xs text-text-muted">€{contract.cost?.toFixed(4) || '0.0000'}</td>
-                    <td className="py-4 px-2 text-xs text-text-muted">{contract.date}</td>
                     <td className="py-4 px-2">
-                      <StatusBadge status={contract.status} />
+                       <span className="text-sm font-semibold text-text-primary">
+                        {entry.latest_family}
+                      </span>
+                    </td>
+                    <td className="py-4 px-2 text-xs text-text-secondary">{entry.latest_audience}</td>
+                    <td className="py-4 px-2 text-center">
+                       <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-accent/50 text-[10px] font-bold text-primary border border-primary/20">
+                        <Layers size={10} />
+                        {entry.version_count}
+                      </span>
+                    </td>
+                    <td className="py-4 px-2 text-xs text-text-muted">
+                      {new Date(entry.latest_date).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-2">
+                      <StatusBadge status={entry.latest_status} />
                     </td>
                     <td className="py-4 px-2 text-right">
                       <ActionButton 
                         variant="secondary" 
                         size="sm" 
-                        icon={Eye} 
-                        onClick={() => setSelectedContractId(contract.id)}
+                        icon={History} 
+                        onClick={() => setSelectedTranscriptId(entry.transcript_id)}
                       >
-                        View
+                        View History
                       </ActionButton>
                     </td>
                   </tr>
@@ -125,9 +145,93 @@ const Contracts = () => {
         ) : (
           <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-border mt-4 rounded-xl">
             <FileSignature className="text-text-muted mb-2 w-12 h-12" />
-            <p className="text-text-secondary font-medium">No contracts pending review.</p>
+            <p className="text-text-secondary font-medium">No contracts found.</p>
           </div>
         )}
+      </SectionCard>
+    </div>
+  );
+};
+
+const TranscriptVersionsView = ({ transcriptId, onBack, onSelectVersion }) => {
+  const { data: versions, isLoading, isError } = useContractVersionsQuery(transcriptId);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 space-y-4">
+        <Loader2 className="animate-spin text-primary" size={32} />
+        <p className="text-text-secondary">Loading version history...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-6 bg-red-900/20 text-red-400 rounded-xl border border-red-900/50 flex flex-col items-center gap-4">
+        <AlertCircle size={20} />
+        <span>Failed to load versions.</span>
+        <ActionButton variant="secondary" onClick={onBack} icon={ArrowLeft}>Go Back</ActionButton>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 pb-10">
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={onBack}
+          className="p-2 hover:bg-surface-elevated rounded-full transition-colors text-text-muted hover:text-text-primary"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <div>
+          <h1 className="text-xl font-bold text-text-primary uppercase tracking-tight">VERSION HISTORY</h1>
+          <p className="text-xs text-text-muted mt-0.5">Transcript: {transcriptId}</p>
+        </div>
+      </div>
+
+      <SectionCard title={`${versions.length} VERSIONS FOUND`}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-border text-[10px] font-bold text-text-muted uppercase tracking-widest">
+                <th className="pb-4 pt-2 font-bold px-2">Version Date</th>
+                <th className="pb-4 pt-2 font-bold px-2">Family</th>
+                <th className="pb-4 pt-2 font-bold px-2">Score</th>
+                <th className="pb-4 pt-2 font-bold px-2">Tokens</th>
+                <th className="pb-4 pt-2 font-bold px-2">Cost</th>
+                <th className="pb-4 pt-2 font-bold px-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {versions.map((v) => (
+                <tr key={v.id} className="group hover:bg-surface-highlight/5 transition-colors">
+                  <td className="py-4 px-2 text-xs text-text-primary font-medium">
+                    {new Date(v.created_at).toLocaleString()}
+                  </td>
+                  <td className="py-4 px-2 text-xs text-text-secondary">{v.contract_family}</td>
+                  <td className="py-4 px-2">
+                    <span className={`text-xs font-mono font-bold ${v.pinecone_score > 0.85 ? 'text-status-success' : 'text-status-warning'}`}>
+                      {(v.pinecone_score * 100).toFixed(1)}%
+                    </span>
+                  </td>
+                  <td className="py-4 px-2 text-xs text-text-muted">{v.tokens_used?.toLocaleString() || 0}</td>
+                  <td className="py-4 px-2 text-xs text-text-muted">€{v.cost_eur?.toFixed(4) || '0.0000'}</td>
+                  <td className="py-4 px-2 text-right">
+                    <ActionButton 
+                      variant="secondary" 
+                      size="sm" 
+                      icon={Eye} 
+                      onClick={() => onSelectVersion(v.id)}
+                    >
+                      View & Edit
+                    </ActionButton>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </SectionCard>
     </div>
   );
@@ -156,7 +260,7 @@ const ContractDetails = ({ contractId, onBack }) => {
     saveMutation.mutate({ contract, content: editableContent }, {
       onSuccess: () => {
         setHasChanges(false);
-        onBack(); // Go back to list to see the new version
+        onBack(); // Go back to versions list
       }
     });
   };
@@ -169,7 +273,7 @@ const ContractDetails = ({ contractId, onBack }) => {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-4">
         <Loader2 className="animate-spin text-primary" size={32} />
-        <p className="text-text-secondary">Loading contract details...</p>
+        <p className="text-text-secondary">Loading version details...</p>
       </div>
     );
   }
@@ -179,7 +283,7 @@ const ContractDetails = ({ contractId, onBack }) => {
       <div className="p-6 bg-red-900/20 text-red-400 rounded-xl border border-red-900/50 flex flex-col items-center gap-4">
         <div className="flex items-center gap-3">
           <AlertCircle size={20} />
-          <span>Failed to load contract details.</span>
+          <span>Failed to load details.</span>
         </div>
         <ActionButton variant="secondary" onClick={onBack} icon={ArrowLeft}>Go Back</ActionButton>
       </div>
@@ -206,7 +310,7 @@ const ContractDetails = ({ contractId, onBack }) => {
               {contract.contract_family || 'Standard Contract'}
             </h1>
             <p className="text-xs text-text-muted mt-0.5">
-              Ref: {contract.id.substring(0, 8)} • Audience: {contract.audience || 'General'}
+              Ref ID: {contract.id} • Audience: {contract.audience || 'General'}
             </p>
           </div>
         </div>

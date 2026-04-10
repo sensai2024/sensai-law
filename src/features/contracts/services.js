@@ -3,19 +3,35 @@ import axios from 'axios';
 
 const TRANSCRIPTION_WEBHOOK_URL = import.meta.env.VITE_TRANSCRIPTION_WEBHOOK_URL;
 
-export async function getContracts() {
+export async function getContractsGroupedByTranscript() {
   try {
     const { data, error } = await supabase
       .from('contracts')
-      .select('id, contract_family, audience, pinecone_score, tokens_used, cost_eur, status, created_at')
+      .select('id, transcript_id, contract_family, audience, pinecone_score, tokens_used, cost_eur, status, created_at')
       .order('created_at', { ascending: false })
-      .limit(100);
+      .limit(200);
 
     if (error) throw new Error(error.message);
     return data;
   } catch (err) {
-    console.error('getContracts error:', err);
+    console.error('getContractsGroupedByTranscript error:', err);
     throw new Error('Failed to fetch contracts');
+  }
+}
+
+export async function getContractVersionsByTranscriptId(transcriptId) {
+  try {
+    const { data, error } = await supabase
+      .from('contracts')
+      .select('id, transcript_id, drive_doc_id, drive_doc_url, contract_family, audience, pinecone_score, tokens_used, cost_eur, status, created_at, content')
+      .eq('transcript_id', transcriptId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data;
+  } catch (err) {
+    console.error('getContractVersionsByTranscriptId error:', err);
+    throw new Error('Failed to fetch contract versions');
   }
 }
 

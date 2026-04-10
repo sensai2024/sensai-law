@@ -2,23 +2,41 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { contractsKeys } from './queryKeys';
 import { 
-  getContracts, 
+  getContractsGroupedByTranscript, 
+  getContractVersionsByTranscriptId,
   getContractById, 
   regenerateContract, 
   saveEditedContractAsNewVersion 
 } from './services';
-import { mapContractsData } from './mappers';
+import { 
+  mapContractsToGroupedEntries,
+  mapContractRowToVersionItem 
+} from './mappers';
 
 /**
- * Hook to fetch the list of contracts and associated KPIs
+ * Hook to fetch the grouped list of contracts and associated KPIs
  */
-export function useContractsQuery() {
+export function useContractsGroupedQuery() {
   return useQuery({
     queryKey: contractsKeys.lists(),
     queryFn: async () => {
-      const data = await getContracts();
-      return mapContractsData(data);
+      const data = await getContractsGroupedByTranscript();
+      return mapContractsToGroupedEntries(data);
     }
+  });
+}
+
+/**
+ * Hook to fetch all versions for a specific transcript
+ */
+export function useContractVersionsQuery(transcriptId) {
+  return useQuery({
+    queryKey: ['contracts', 'versions', transcriptId],
+    queryFn: async () => {
+      const data = await getContractVersionsByTranscriptId(transcriptId);
+      return data.map(mapContractRowToVersionItem);
+    },
+    enabled: !!transcriptId,
   });
 }
 
@@ -44,6 +62,7 @@ export function useRegenerateContractMutation() {
     mutationFn: (contract) => regenerateContract(contract),
     onSuccess: (data, contract) => {
       queryClient.invalidateQueries({ queryKey: contractsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['contracts', 'versions', contract.transcript_id] });
       queryClient.invalidateQueries({ queryKey: contractsKeys.detail(contract.id) });
       queryClient.invalidateQueries({ queryKey: ['sidebarCounts'] });
     }
@@ -58,9 +77,10 @@ export function useSaveEditedContractMutation() {
   
   return useMutation({
     mutationFn: ({ contract, content }) => saveEditedContractAsNewVersion(contract, content),
-    onSuccess: () => {
-      // Invalidate list so the new version appears
+    onSuccess: (data) => {
+      // Invalidate list and the specific transcript thread
       queryClient.invalidateQueries({ queryKey: contractsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ['contracts', 'versions', data.transcript_id] });
       queryClient.invalidateQueries({ queryKey: ['sidebarCounts'] });
     }
   });

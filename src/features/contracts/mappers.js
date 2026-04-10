@@ -1,41 +1,60 @@
 // src/features/contracts/mappers.js
 
-export function mapContractsData(data) {
-  if (!data) return { contracts: [], distribution: [], kpis: [] };
+export function mapContractsToGroupedEntries(data) {
+  if (!data || !Array.isArray(data)) return { groupedEntries: [], kpis: [] };
 
-  const contracts = data.map(item => ({
-    id: item.id,
-    name: item.contract_family ? `${item.contract_family} - ${item.audience || 'Unknown'}` : `Contract #${item.id.substring(0,6)}`,
-    type: item.contract_family || 'Standard',
-    score: (item.pinecone_score !== undefined && item.pinecone_score !== null ? item.pinecone_score : 0.95).toFixed(2),
-    date: item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A',
-    status: item.status || 'generated',
-    url: item.drive_doc_url,
-    audience: item.audience,
-    score: item.pinecone_score,
-    tokens: item.tokens_used,
-    cost: item.cost_eur
-  }));
-
-  const typesMap = {};
+  const groups = {};
   data.forEach(item => {
-    const t = item.contract_family || 'Standard';
-    typesMap[t] = (typesMap[t] || 0) + 1;
+    const tid = item.transcript_id || 'unknown';
+    if (!groups[tid]) {
+      groups[tid] = [];
+    }
+    groups[tid].push(item);
   });
 
-  const distribution = Object.keys(typesMap).map(key => ({
-    name: key,
-    value: typesMap[key]
-  }));
+  const groupedEntries = Object.keys(groups).map(tid => {
+    const versions = groups[tid].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    const latest = versions[0];
 
-  const completed = data.filter(d => d.status === 'generated' || d.status === 'success');
-  const completionRate = data.length > 0 ? ((completed.length / data.length) * 100).toFixed(1) : 0;
+    return {
+      transcript_id: tid,
+      latest_family: latest.contract_family || 'Standard',
+      latest_audience: latest.audience || 'General',
+      latest_status: latest.status,
+      latest_date: latest.created_at,
+      version_count: versions.length,
+      // We don't embed full versions here to keep the list light, 
+      // but we return the latest metadata
+      id: latest.id // Reference for the latest single item
+    };
+  });
+
+  // Sort groups by latest date
+  groupedEntries.sort((a, b) => new Date(b.latest_date) - new Date(a.latest_date));
 
   const kpis = [
-    { label: 'TOTAL CONTRACTS', value: data.length.toString(), trend: 'Updated Just Now', type: 'success' },
-    { label: 'COMPLETION RATE', value: `${completionRate}%`, trend: 'Target: 95%', type: 'processing' },
-    { label: 'AVG DRAFT TIME', value: '1.2s', trend: 'vs 4h manual', type: 'gold' },
+    { label: 'ACTIVE THREADS', value: groupedEntries.length.toString(), trend: 'Unique Transcripts', type: 'Edit success' },
+    { label: 'TOTAL VERSIONS', value: data.length.toString(), trend: 'Regenerations & Edits', type: 'processing' },
+    { label: 'AVG VERSIONS', value: groupedEntries.length > 0 ? (data.length / groupedEntries.length).toFixed(1) : '0', trend: 'per Transcript', type: 'gold' },
   ];
 
-  return { contracts, distribution, kpis };
+  return { groupedEntries, kpis };
+}
+
+export function mapContractRowToVersionItem(item) {
+  if (!item) return null;
+  return {
+    id: item.id,
+    transcript_id: item.transcript_id,
+    drive_doc_id: item.drive_doc_id,
+    drive_doc_url: item.drive_doc_url,
+    contract_family: item.contract_family,
+    audience: item.audience,
+    pinecone_score: item.pinecone_score,
+    tokens_used: item.tokens_used,
+    cost_eur: item.cost_eur,
+    status: item.status,
+    created_at: item.created_at,
+    content: item.content
+  };
 }
