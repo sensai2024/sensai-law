@@ -6,15 +6,18 @@ import {
   UserCheck, 
   FileSignature, 
   AlertCircle,
-  Database,
   History,
-  Users
+  Users,
+  ShieldCheck,
+  Settings
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useSidebarCountsQuery } from './hooks';
+import { useAuth } from '../../features/auth/AuthContext';
 
 const SidebarNav = () => {
   const { data: counts, isLoading } = useSidebarCountsQuery();
+  const { isAdmin } = useAuth();
 
   const navItems = [
     { label: 'OVERVIEW', type: 'category' },
@@ -26,6 +29,20 @@ const SidebarNav = () => {
     { label: 'Clients', path: '/clients', icon: Users, counter: counts?.clients ?? 0, showBadge: true },
     { label: 'Errors', path: '/errors', icon: AlertCircle, counter: counts?.errors ?? 0, showBadge: true },
   ];
+
+  // Add admin links
+  if (isAdmin) {
+    navItems.push(
+      { label: 'ADMINISTRATION', type: 'category' },
+      { label: 'Users Management', path: '/admin/users', icon: ShieldCheck }
+    );
+  }
+
+  // Add settings
+  navItems.push(
+    { label: 'SETTINGS', type: 'category' },
+    { label: 'Security', path: '/settings/security', icon: Settings }
+  );
 
   return (
     <div className="w-64 h-full bg-surface border-r border-border flex flex-col">

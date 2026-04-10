@@ -3,23 +3,35 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import SidebarNav from './SidebarNav';
 import ActionButton from '../ui/ActionButton';
-import { RefreshCcw, Plus } from 'lucide-react';
+import { RefreshCcw, Plus, LogOut, User } from 'lucide-react';
+import { useAuth } from '../../features/auth/AuthContext';
+import { useLogoutMutation } from '../../features/auth/authHooks';
 
 const AppLayout = () => {
     const location = useLocation();
     const queryClient = useQueryClient();
+    const { profile } = useAuth();
+    const logoutMutation = useLogoutMutation();
     
     const handleRefresh = () => {
         queryClient.invalidateQueries();
     };
+
+    const handleLogout = () => {
+        logoutMutation.mutate();
+    };
     
     const getPageTitle = (path) => {
+        if (path.startsWith('/clients/')) return 'Client Details';
         switch (path) {
             case '/': return 'Dashboard';
             case '/transcriptions': return 'Transcriptions';
             case '/crm-approval': return 'CRM Approval';
             case '/contracts': return 'Contracts';
+            case '/clients': return 'Clients';
             case '/errors': return 'Pipeline Errors';
+            case '/settings/security': return 'Security Settings';
+            case '/admin/users': return 'User Management';
             default: return 'Automation Hub';
         }
     };
@@ -37,18 +49,38 @@ const AppLayout = () => {
                         {getPageTitle(location.pathname)}
                     </h2>
                     
-                    <div className="flex items-center gap-3">
-                        <ActionButton 
-                            variant="secondary" 
-                            size="md" 
-                            icon={RefreshCcw}
-                            onClick={handleRefresh}
-                        >
-                            Refresh
-                        </ActionButton>
-                        <ActionButton variant="primary" size="md" icon={Plus}>
-                            New transcript
-                        </ActionButton>
+                    <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-3 pr-6 border-r border-border">
+                            <ActionButton 
+                                variant="secondary" 
+                                size="md" 
+                                icon={RefreshCcw}
+                                onClick={handleRefresh}
+                            >
+                                Refresh
+                            </ActionButton>
+                            <ActionButton variant="primary" size="md" icon={Plus}>
+                                New transcript
+                            </ActionButton>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <div className="flex flex-col items-end">
+                                <span className="text-sm font-bold text-text-primary">{profile?.full_name || 'User'}</span>
+                                <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{profile?.role || 'Guest'}</span>
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-surface-elevated border border-border flex items-center justify-center text-primary shadow-gold-glow">
+                                <User size={20} />
+                            </div>
+                            <button 
+                                onClick={handleLogout}
+                                disabled={logoutMutation.isPending}
+                                className="p-2 text-text-muted hover:text-status-error transition-colors"
+                                title="Log out"
+                            >
+                                <LogOut size={20} />
+                            </button>
+                        </div>
                     </div>
                 </header>
 
