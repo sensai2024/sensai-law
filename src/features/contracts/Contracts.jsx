@@ -1,11 +1,11 @@
 // src/features/contracts/Contracts.jsx
 import React, { useState, useEffect } from 'react';
-import { 
-  FileText, 
-  RotateCcw, 
-  Eye, 
-  FileSignature, 
-  Save, 
+import {
+  FileText,
+  RotateCcw,
+  Eye,
+  FileSignature,
+  Save,
   ArrowLeft,
   Loader2,
   AlertCircle,
@@ -16,32 +16,32 @@ import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ActionButton from '../../components/ui/ActionButton';
 import StatCard from '../../components/ui/StatCard';
-import { 
-  useContractsGroupedQuery, 
+import {
+  useContractsGroupedQuery,
   useContractVersionsQuery,
-  useContractDetailsQuery, 
-  useRegenerateContractMutation, 
-  useSaveEditedContractMutation 
+  useContractDetailsQuery,
+  useRegenerateContractMutation,
+  useSaveEditedContractMutation
 } from './hooks';
 
 const Contracts = () => {
   const [selectedTranscriptId, setSelectedTranscriptId] = useState(null);
   const [selectedVersionId, setSelectedVersionId] = useState(null);
-  
+
   const { data: listData, isLoading: isListLoading, isError: isListError } = useContractsGroupedQuery();
 
   if (selectedVersionId) {
     return (
-      <ContractDetails 
-        contractId={selectedVersionId} 
-        onBack={() => setSelectedVersionId(null)} 
+      <ContractDetails
+        contractId={selectedVersionId}
+        onBack={() => setSelectedVersionId(null)}
       />
     );
   }
 
   if (selectedTranscriptId) {
     return (
-      <TranscriptVersionsView 
+      <TranscriptVersionsView
         transcriptId={selectedTranscriptId}
         onBack={() => setSelectedTranscriptId(null)}
         onSelectVersion={(vid) => setSelectedVersionId(vid)}
@@ -76,7 +76,7 @@ const Contracts = () => {
       {/* Top KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {kpis.map((kpi, i) => (
-          <StatCard 
+          <StatCard
             key={i}
             title={kpi.label}
             value={kpi.value}
@@ -105,18 +105,18 @@ const Contracts = () => {
                 {groupedEntries.map((entry) => (
                   <tr key={entry.transcript_id} className="group hover:bg-surface-highlight/5 transition-colors">
                     <td className="py-4 px-2">
-                       <span className="text-sm font-mono text-text-muted">
+                      <span className="text-sm font-mono text-text-muted">
                         {entry.transcript_id.substring(0, 8)}...
                       </span>
                     </td>
                     <td className="py-4 px-2">
-                       <span className="text-sm font-semibold text-text-primary">
+                      <span className="text-sm font-semibold text-text-primary">
                         {entry.latest_family}
                       </span>
                     </td>
                     <td className="py-4 px-2 text-xs text-text-secondary">{entry.latest_audience}</td>
                     <td className="py-4 px-2 text-center">
-                       <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-accent/50 text-[10px] font-bold text-primary border border-primary/20">
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-accent/50 text-[10px] font-bold text-primary border border-primary/20">
                         <Layers size={10} />
                         {entry.version_count}
                       </span>
@@ -128,10 +128,10 @@ const Contracts = () => {
                       <StatusBadge status={entry.latest_status} />
                     </td>
                     <td className="py-4 px-2 text-right">
-                      <ActionButton 
-                        variant="secondary" 
-                        size="sm" 
-                        icon={History} 
+                      <ActionButton
+                        variant="secondary"
+                        size="sm"
+                        icon={History}
                         onClick={() => setSelectedTranscriptId(entry.transcript_id)}
                       >
                         View History
@@ -178,7 +178,7 @@ const TranscriptVersionsView = ({ transcriptId, onBack, onSelectVersion }) => {
   return (
     <div className="space-y-6 pb-10">
       <div className="flex items-center gap-4">
-        <button 
+        <button
           onClick={onBack}
           className="p-2 hover:bg-surface-elevated rounded-full transition-colors text-text-muted hover:text-text-primary"
         >
@@ -200,6 +200,7 @@ const TranscriptVersionsView = ({ transcriptId, onBack, onSelectVersion }) => {
                 <th className="pb-4 pt-2 font-bold px-2">Score</th>
                 <th className="pb-4 pt-2 font-bold px-2">Tokens</th>
                 <th className="pb-4 pt-2 font-bold px-2">Cost</th>
+                <th className="pb-4 pt-2 font-bold px-2">Status</th>
                 <th className="pb-4 pt-2 font-bold px-2 text-right">Actions</th>
               </tr>
             </thead>
@@ -217,11 +218,14 @@ const TranscriptVersionsView = ({ transcriptId, onBack, onSelectVersion }) => {
                   </td>
                   <td className="py-4 px-2 text-xs text-text-muted">{v.tokens_used?.toLocaleString() || 0}</td>
                   <td className="py-4 px-2 text-xs text-text-muted">€{v.cost_eur?.toFixed(4) || '0.0000'}</td>
+                  <td className="py-4 px-2">
+                    <StatusBadge status={v.status} />
+                  </td>
                   <td className="py-4 px-2 text-right">
-                    <ActionButton 
-                      variant="secondary" 
-                      size="sm" 
-                      icon={Eye} 
+                    <ActionButton
+                      variant="secondary"
+                      size="sm"
+                      icon={Eye}
                       onClick={() => onSelectVersion(v.id)}
                     >
                       View & Edit
@@ -299,7 +303,7 @@ const ContractDetails = ({ contractId, onBack }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={onBack}
             className="p-2 hover:bg-surface-elevated rounded-full transition-colors text-text-muted hover:text-text-primary"
           >
@@ -317,10 +321,10 @@ const ContractDetails = ({ contractId, onBack }) => {
         <div className="flex items-center gap-3">
           <StatusBadge status={contract.status} />
           {hasChanges && (
-            <ActionButton 
-              variant="primary" 
-              size="sm" 
-              icon={Save} 
+            <ActionButton
+              variant="primary"
+              size="sm"
+              icon={Save}
               onClick={handleSave}
               disabled={isProcessing}
             >
@@ -333,8 +337,8 @@ const ContractDetails = ({ contractId, onBack }) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Content Editor */}
         <div className="lg:col-span-2 space-y-4">
-          <SectionCard 
-            title="CONTRACT CONTENT" 
+          <SectionCard
+            title="CONTRACT CONTENT"
             headerActions={
               <span className="text-[10px] text-text-muted font-mono">
                 {contract.tokens_used || 0} tokens used
@@ -381,29 +385,29 @@ const ContractDetails = ({ contractId, onBack }) => {
                 </span>
               </div>
               <div className="py-2">
-                 <span className="text-xs text-text-muted uppercase font-bold tracking-wider block mb-2">Drive Document</span>
-                 {contract.drive_doc_url ? (
-                   <a 
-                    href={contract.drive_doc_url} 
-                    target="_blank" 
+                <span className="text-xs text-text-muted uppercase font-bold tracking-wider block mb-2">Drive Document</span>
+                {contract.drive_doc_url ? (
+                  <a
+                    href={contract.drive_doc_url}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-[11px] text-primary hover:underline group"
-                   >
-                     <FileText size={14} />
-                     View in Google Drive
-                   </a>
-                 ) : (
-                   <span className="text-[11px] text-text-muted italic">No document link generated</span>
-                 )}
+                  >
+                    <FileText size={14} />
+                    View in Google Drive
+                  </a>
+                ) : (
+                  <span className="text-[11px] text-text-muted italic">No document link generated</span>
+                )}
               </div>
             </div>
           </SectionCard>
 
           <SectionCard title="WORKFLOW ACTIONS">
             <div className="space-y-3">
-              <ActionButton 
-                variant="primary" 
-                className="w-full justify-center py-3" 
+              <ActionButton
+                variant="primary"
+                className="w-full justify-center py-3"
                 icon={RotateCcw}
                 onClick={handleRegenerate}
                 disabled={isProcessing}

@@ -67,7 +67,7 @@ export async function regenerateContract(contract) {
     };
 
     const response = await axios.post(TRANSCRIPTION_WEBHOOK_URL, payload);
-    
+
     if (response.status !== 200 && response.status !== 201) {
       throw new Error(`Regeneration webhook failed with status ${response.status}`);
     }
@@ -102,7 +102,7 @@ export async function saveEditedContractAsNewVersion(contract, updatedContent) {
       pinecone_score: contract.pinecone_score,
       tokens_used: contract.tokens_used,
       cost_eur: contract.cost_eur,
-      status: 'success', // New version starts as success/ready
+      status: 'Edit success', // New version starts as success/ready
       content: updatedContent
     };
 
