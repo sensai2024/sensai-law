@@ -1,11 +1,17 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import SidebarNav from './SidebarNav';
 import ActionButton from '../ui/ActionButton';
 import { RefreshCcw, Plus } from 'lucide-react';
 
 const AppLayout = () => {
     const location = useLocation();
+    const queryClient = useQueryClient();
+    
+    const handleRefresh = () => {
+        queryClient.invalidateQueries();
+    };
     
     const getPageTitle = (path) => {
         switch (path) {
@@ -32,7 +38,12 @@ const AppLayout = () => {
                     </h2>
                     
                     <div className="flex items-center gap-3">
-                        <ActionButton variant="secondary" size="md" icon={RefreshCcw}>
+                        <ActionButton 
+                            variant="secondary" 
+                            size="md" 
+                            icon={RefreshCcw}
+                            onClick={handleRefresh}
+                        >
                             Refresh
                         </ActionButton>
                         <ActionButton variant="primary" size="md" icon={Plus}>

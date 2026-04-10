@@ -43,7 +43,7 @@ export async function approveTranscription(transcription) {
   try {
     const payload = {
       transcript_id: transcription.id,
-      drive_file_id: transcription.drive_file_id,
+      driveFileId: transcription.driveFileId,
       title: transcription.title,
       content: transcription.content,
     };

@@ -10,7 +10,11 @@ export function mapContractsData(data) {
     score: (item.pinecone_score !== undefined && item.pinecone_score !== null ? item.pinecone_score : 0.95).toFixed(2),
     date: item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A',
     status: item.status || 'generated',
-    url: item.drive_doc_url
+    url: item.drive_doc_url,
+    audience: item.audience,
+    score: item.pinecone_score,
+    tokens: item.tokens_used,
+    cost: item.cost_eur
   }));
 
   const typesMap = {};
