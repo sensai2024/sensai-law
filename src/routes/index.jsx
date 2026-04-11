@@ -5,6 +5,8 @@ import { AuthProvider } from '../features/auth/AuthContext';
 import AuthGuard from '../components/auth/AuthGuard';
 import AdminGuard from '../components/auth/AdminGuard';
 
+import LoadingPage from '../components/ui/LoadingPage';
+
 // Auth pages
 const LoginPage = React.lazy(() => import('../features/auth/LoginPage'));
 const ForgotPasswordPage = React.lazy(() => import('../features/auth/ForgotPasswordPage'));
@@ -26,11 +28,7 @@ const ClientDetails = React.lazy(() => import('../features/clients/ClientDetails
 const AppRoutes = () => {
     return (
         <AuthProvider>
-            <React.Suspense fallback={
-                <div className="h-screen w-screen flex items-center justify-center bg-slate-950">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-                </div>
-            }>
+            <React.Suspense fallback={<LoadingPage />}>
                 <Routes>
                     {/* Public Routes */}
                     <Route path="/login" element={<LoginPage />} />

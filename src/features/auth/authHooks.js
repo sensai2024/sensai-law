@@ -27,7 +27,6 @@ export function useLogoutMutation() {
     onSuccess: () => {
       // Clear all queries from cache on logout
       queryClient.clear();
-      window.location.href = '/login';
     },
   });
 }

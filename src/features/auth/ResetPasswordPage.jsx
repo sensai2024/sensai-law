@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useChangePasswordMutation } from './authHooks';
+import ActionButton from '../../components/ui/ActionButton';
+import { Lock, Key, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -21,7 +23,7 @@ const ResetPasswordPage = () => {
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError('Security key must be at least 6 characters.');
       return;
     }
     
@@ -31,27 +33,26 @@ const ResetPasswordPage = () => {
         setTimeout(() => navigate('/login'), 3000);
       },
       onError: (err) => {
-        setError(err.message || 'Failed to reset password. The link might be expired.');
+        setError(err.message || 'Failed to reset password. The security link might be expired.');
       },
     });
   };
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-        <div className="max-w-md w-full space-y-8 p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl text-center">
-          <div className="bg-green-500/20 p-3 rounded-full inline-block mb-4">
-            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="max-w-md w-full space-y-8 p-10 bg-surface rounded-2xl border border-border shadow-premium text-center animate-in zoom-in-95 duration-300">
+           <div className="w-20 h-20 bg-status-success/10 text-status-success rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+            <CheckCircle2 size={40} />
           </div>
-          <h2 className="text-2xl font-bold text-white">Password Reset Successful</h2>
-          <p className="mt-2 text-slate-400">
-            Your password has been updated. Redirecting you to login...
+          <h2 className="text-2xl font-bold text-text-primary tracking-tight">Security Protocol Updated</h2>
+          <p className="mt-4 text-text-muted leading-relaxed">
+            Your identification key has been successfully re-provisioned. 
+            Redirecting to the secure gateway...
           </p>
-          <div className="mt-8">
-            <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
-              Click here if not redirected
+          <div className="mt-10 pt-6 border-t border-border/50">
+            <Link to="/login" className="text-primary hover:text-primary-hover font-bold text-xs uppercase tracking-widest">
+              Click here to bypass redirection
             </Link>
           </div>
         </div>
@@ -60,66 +61,81 @@ const ResetPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="max-w-md w-full space-y-8 p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-white">Set New Password</h2>
-          <p className="mt-2 text-sm text-slate-400">
-            Secure your account with a new password.
-          </p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 relative overflow-hidden">
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+
+      <div className="max-w-md w-full z-10">
+        <div className="text-center mb-10">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-surface-highlight border border-border rounded-2xl flex items-center justify-center text-primary shadow-gold-glow">
+              <ShieldCheck size={32} />
+            </div>
+          </div>
+          <h2 className="text-3xl font-bold text-text-primary tracking-tight">Finalize Recovery</h2>
+          <p className="mt-2 text-[10px] font-bold tracking-[0.2em] text-text-muted uppercase">Secure Identification Setup</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+        <div className="bg-surface p-8 rounded-2xl border border-border shadow-premium">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-status-error/10 border border-status-error/30 text-status-error p-3 rounded-xl text-xs font-bold">
+                [SECURITY ALERT]: {error}
+              </div>
+            )}
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="password" name="new-password-label" className="block text-sm font-medium text-slate-300">
-                New Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="mt-1 block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirm-password" name="confirm-password-label" className="block text-sm font-medium text-slate-300">
-                Confirm New Password
-              </label>
-              <input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                required
-                className="mt-1 block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-            </div>
-          </div>
+            <div className="space-y-5">
+              <div>
+                <label htmlFor="password" name="new-password-label" className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1 mb-2">
+                  New Security Key
+                </label>
+                <div className="relative group/input">
+                  <Key className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    className="block w-full pl-11 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
 
-          <div>
-            <button
-              id="reset-submit-button"
-              type="submit"
-              disabled={changePasswordMutation.isPending}
-              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-slate-950 bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50 shadow-lg shadow-primary/20"
-            >
-              {changePasswordMutation.isPending ? 'Updating...' : 'Reset Password'}
-            </button>
-          </div>
-        </form>
+              <div>
+                <label htmlFor="confirm-password" name="confirm-password-label" className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1 mb-2">
+                  Confirm Verification Key
+                </label>
+                <div className="relative group/input">
+                  <Lock className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                  <input
+                    id="confirm-password"
+                    name="confirm-password"
+                    type="password"
+                    required
+                    className="block w-full pl-11 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <ActionButton
+                id="reset-submit-button"
+                type="submit"
+                loading={changePasswordMutation.isPending}
+                className="w-full"
+                size="lg"
+              >
+                Establish New Key
+              </ActionButton>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

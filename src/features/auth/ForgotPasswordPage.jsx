@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForgotPasswordMutation } from './authHooks';
+import ActionButton from '../../components/ui/ActionButton';
+import { Mail, ArrowLeft, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
@@ -25,20 +27,21 @@ const ForgotPasswordPage = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-        <div className="max-w-md w-full space-y-8 p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl text-center">
-          <div className="bg-green-500/20 p-3 rounded-full inline-block mb-4">
-            <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="max-w-md w-full space-y-8 p-10 bg-surface rounded-2xl border border-border shadow-premium text-center animate-in zoom-in-95 duration-300">
+          <div className="w-20 h-20 bg-status-success/10 text-status-success rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+            <CheckCircle2 size={40} />
           </div>
-          <h2 className="text-2xl font-bold text-white">Check your email</h2>
-          <p className="mt-2 text-slate-400">
-            We've sent a password reset link to <span className="text-white font-medium">{email}</span>.
+          <h2 className="text-2xl font-bold text-text-primary tracking-tight">Email Transmitted</h2>
+          <p className="mt-4 text-text-muted leading-relaxed">
+            A security recovery link has been dispatched to <br/>
+            <span className="text-primary font-bold">{email}</span>.
           </p>
-          <div className="mt-8">
-            <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
-              Return to login
+          <div className="mt-10 pt-6 border-t border-border/50">
+            <Link to="/login">
+               <ActionButton variant="secondary" icon={ArrowLeft} className="w-full">
+                  Return to Archive
+               </ActionButton>
             </Link>
           </div>
         </div>
@@ -47,58 +50,72 @@ const ForgotPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="max-w-md w-full space-y-8 p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl">
-        <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-white">Reset Password</h2>
-          <p className="mt-2 text-sm text-slate-400">
-            Enter your email and we'll send you a link to reset your password.
-          </p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 relative overflow-hidden">
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+
+      <div className="max-w-md w-full z-10">
+        <div className="text-center mb-10">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-surface-highlight border border-border rounded-2xl flex items-center justify-center text-primary shadow-gold-glow">
+              <ShieldCheck size={32} />
+            </div>
+          </div>
+          <h2 className="text-3xl font-bold text-text-primary tracking-tight">Recovery Protocol</h2>
+          <p className="mt-2 text-[10px] font-bold tracking-[0.2em] text-text-muted uppercase">Access Restoration</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+        <div className="bg-surface p-8 rounded-2xl border border-border shadow-premium">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <p className="text-sm text-text-muted text-center mb-4">
+              Enter your identified email address to receive a secure restoration key.
+            </p>
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email-address" className="block text-sm font-medium text-slate-300">
+            {error && (
+              <div className="bg-status-error/10 border border-status-error/30 text-status-error p-3 rounded-xl text-xs font-bold">
+                [ERROR]: {error}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label htmlFor="email-address" className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1">
                 Email Address
               </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="mt-1 block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <div className="relative group/input">
+                <Mail className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                <input
+                  id="email-address"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="block w-full pl-11 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                  placeholder="name@altata.legal"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <button
-              id="send-reset-button"
-              type="submit"
-              disabled={forgotPasswordMutation.isPending}
-              className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-slate-950 bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50 shadow-lg shadow-primary/20"
-            >
-              {forgotPasswordMutation.isPending ? 'Sending...' : 'Send Reset Link'}
-            </button>
-          </div>
+            <div className="pt-2">
+              <ActionButton
+                id="send-reset-button"
+                type="submit"
+                loading={forgotPasswordMutation.isPending}
+                className="w-full"
+                size="lg"
+              >
+                Send Recovery Key
+              </ActionButton>
+            </div>
 
-          <div className="text-center">
-            <Link to="/login" className="text-sm text-slate-400 hover:text-white transition-colors">
-              Back to login
-            </Link>
-          </div>
-        </form>
+            <div className="text-center pt-2">
+              <Link to="/login" className="text-[10px] font-bold text-text-muted hover:text-primary transition-colors uppercase tracking-widest flex items-center justify-center gap-2">
+                <ArrowLeft size={12} />
+                Back to Authentication
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

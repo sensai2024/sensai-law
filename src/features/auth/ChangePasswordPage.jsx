@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { useChangePasswordMutation } from './authHooks';
+import SectionCard from '../../components/ui/SectionCard';
+import ActionButton from '../../components/ui/ActionButton';
+import { Lock, ShieldCheck, Key } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 const ChangePasswordPage = () => {
   const [password, setPassword] = useState('');
@@ -20,82 +24,115 @@ const ChangePasswordPage = () => {
     }
 
     if (password.length < 6) {
-      setError('Password must be at least 6 characters.');
+      setError('Security key must be at least 6 characters.');
       return;
     }
     
     changePasswordMutation.mutate(password, {
       onSuccess: () => {
-        setSuccess('Password updated successfully!');
+        setSuccess('Security credentials updated successfully.');
         setPassword('');
         setConfirmPassword('');
       },
       onError: (err) => {
-        setError(err.message || 'Failed to update password.');
+        setError(err.message || 'Failed to update credentials.');
       },
     });
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-        <div className="p-6 border-b border-slate-800 bg-slate-800/50">
-          <h2 className="text-xl font-bold text-white">Security Settings</h2>
-          <p className="text-sm text-slate-400 mt-1">Update your password to keep your account secure.</p>
+    <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Page Header */}
+      <div className="flex items-center gap-4 border-l-2 border-primary pl-6">
+        <div>
+          <h1 className="text-3xl font-bold text-text-primary tracking-tight">Security Protocol</h1>
+          <p className="text-sm text-text-muted mt-1 uppercase tracking-[0.2em] font-bold">Credential Management System</p>
         </div>
-        
-        <div className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-            
-            {success && (
-              <div className="bg-green-500/10 border border-green-500/50 text-green-500 p-3 rounded-lg text-sm">
-                {success}
-              </div>
-            )}
+      </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
-                  New Password
-                </label>
-                <input
+      <SectionCard 
+        title="Key Management" 
+        className="shadow-premium"
+        headerActions={<ShieldCheck size={18} className="text-primary" />}
+      >
+        <div className="flex items-start gap-4 mb-8 p-4 bg-surface-highlight/50 rounded-xl border border-border/50">
+          <div className="p-2 bg-primary/10 text-primary rounded-lg">
+             <Lock size={20} />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-text-primary">Update Security Credentials</h4>
+            <p className="text-xs text-text-muted mt-1 leading-relaxed">
+              Your security key is the primary identifier for administrative actions. 
+              Ensure your new key follows the Altata Légal complexity standard.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-status-error/10 border border-status-error/30 text-status-error p-3 rounded-xl text-xs font-bold animate-in shake duration-300">
+              [CRITICAL ERROR]: {error}
+            </div>
+          )}
+          
+          {success && (
+            <div className="bg-status-success/10 border border-status-success/30 text-status-success p-3 rounded-xl text-xs font-bold animate-in fade-in zoom-in-95">
+              [PROTOCOL SUCCESS]: {success}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1">
+                New Security Key
+              </label>
+              <div className="relative group/input">
+                 <Key className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={16} />
+                 <input
                   type="password"
                   required
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
-                  Confirm New Password
-                </label>
-                <input
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1">
+                Confirm Verification Key
+              </label>
+              <div className="relative group/input">
+                 <Lock className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={16} />
+                 <input
                   type="password"
                   required
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  placeholder="••••••••"
+                  className="w-full pl-10 pr-4 py-2.5 h-[46px] bg-surface-highlight border border-border rounded-xl text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
             </div>
+          </div>
 
-            <div className="pt-4">
-              <button
-                type="submit"
-                disabled={changePasswordMutation.isPending}
-                className="px-6 py-2 bg-primary text-slate-950 font-semibold rounded-lg hover:bg-primary/90 transition-all disabled:opacity-50"
-              >
-                {changePasswordMutation.isPending ? 'Updating...' : 'Update Password'}
-              </button>
-            </div>
-          </form>
-        </div>
+          <div className="pt-4 border-t border-border flex justify-end">
+            <ActionButton
+              type="submit"
+              loading={changePasswordMutation.isPending}
+              className="min-w-[200px]"
+            >
+              Authorize Key Update
+            </ActionButton>
+          </div>
+        </form>
+      </SectionCard>
+
+      <div className="p-6 bg-surface-accent/20 rounded-2xl border border-dashed border-border/50 flex items-center justify-center">
+         <p className="text-[10px] text-text-muted font-medium tracking-widest uppercase italic">
+            Session identification remaining active during credential transition.
+         </p>
       </div>
     </div>
   );
