@@ -7,6 +7,8 @@ const ActionButton = ({
   size = 'md', 
   className, 
   icon: Icon,
+  isLoading,
+  disabled,
   ...props 
 }) => {
   const variants = {
@@ -31,12 +33,18 @@ const ActionButton = ({
         sizes[size],
         className
       )}
+      disabled={isLoading || disabled}
       {...props}
     >
-      {Icon && <Icon size={size === 'sm' ? 14 : 18} />}
+      {isLoading ? (
+        <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
+      ) : (
+        Icon && <Icon size={size === 'sm' ? 14 : 18} />
+      )}
       {children}
     </button>
   );
 };
+
 
 export default ActionButton;
