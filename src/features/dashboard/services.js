@@ -14,7 +14,7 @@ export async function getDashboardData() {
       supabase.from('crm_approvals').select('id, status').limit(100),
       supabase.from('transcripts').select('id, status, created_at').limit(100),
       supabase.from('activity_log').select('id, type, title, detail, metadata, created_at').order('created_at', { ascending: false }).limit(5),
-      supabase.from('pipeline_runs').select('id, status, tokens_used, pinecone_score, created_at').order('created_at', { ascending: false }).limit(100)
+      supabase.from('pipeline_runs').select('id, status, pipeline, created_at').order('created_at', { ascending: false }).limit(100)
     ]);
 
     if (cErr) throw new Error(cErr.message);
@@ -24,10 +24,10 @@ export async function getDashboardData() {
     // pipeline_runs is best-effort — don't throw if missing
     if (pErr) console.warn('pipeline_runs fetch warning:', pErr.message);
 
-    return { 
-      contracts: contracts || [], 
-      approvals: approvals || [], 
-      transcripts: transcripts || [], 
+    return {
+      contracts: contracts || [],
+      approvals: approvals || [],
+      transcripts: transcripts || [],
       activities: activities || [],
       pipelineRuns: pipelineRuns || []
     };

@@ -67,7 +67,7 @@ const Dashboard = () => {
                 >
                     {contractsChartData.length > 0 ? (
                         <div className="h-[300px] w-full mt-4">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                                 <BarChart data={contractsChartData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
                                     <XAxis 

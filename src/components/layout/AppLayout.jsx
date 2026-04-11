@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import SidebarNav from './SidebarNav';
 import ActionButton from '../ui/ActionButton';
-import { RefreshCcw, Plus, LogOut, User } from 'lucide-react';
+import { RefreshCcw, LogOut, User, Menu } from 'lucide-react';
 import { useAuth } from '../../features/auth/AuthContext';
 import { useLogoutMutation } from '../../features/auth/authHooks';
 
@@ -12,6 +12,9 @@ const AppLayout = () => {
     const queryClient = useQueryClient();
     const { profile } = useAuth();
     const logoutMutation = useLogoutMutation();
+
+    // Mobile sidebar state — closed by default, always visible on desktop via CSS
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const handleRefresh = () => {
         queryClient.invalidateQueries();
@@ -38,31 +41,46 @@ const AppLayout = () => {
 
     return (
         <div className="flex h-screen bg-background overflow-hidden">
-            {/* Persistent Sidebar */}
-            <SidebarNav />
+            {/* Sidebar — always rendered; mobile open state drives visibility */}
+            <SidebarNav
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+            />
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Header */}
-                <header className="h-20 px-10 flex items-center justify-between border-b border-border bg-background/50 backdrop-blur-md sticky top-0 z-10">
-                    <h2 className="text-2xl font-bold text-text-primary tracking-tight">
-                        {getPageTitle(location.pathname)}
-                    </h2>
+                <header className="h-20 px-6 lg:px-10 flex items-center justify-between border-b border-border bg-background/50 backdrop-blur-md sticky top-0 z-20">
+                    <div className="flex items-center gap-4">
+                        {/* Mobile hamburger — hidden on desktop */}
+                        <button
+                            onClick={() => setSidebarOpen(true)}
+                            className="lg:hidden p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-highlight transition-colors"
+                            aria-label="Open navigation"
+                            id="sidebar-toggle"
+                        >
+                            <Menu size={20} />
+                        </button>
 
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-3 pr-6 border-r border-border">
+                        <h2 className="text-xl lg:text-2xl font-bold text-text-primary tracking-tight">
+                            {getPageTitle(location.pathname)}
+                        </h2>
+                    </div>
+
+                    <div className="flex items-center gap-4 lg:gap-6">
+                        <div className="flex items-center gap-3 pr-4 lg:pr-6 border-r border-border">
                             <ActionButton
                                 variant="secondary"
                                 size="md"
                                 icon={RefreshCcw}
                                 onClick={handleRefresh}
                             >
-                                Refresh
+                                <span className="hidden sm:inline">Refresh</span>
                             </ActionButton>
                         </div>
 
-                        <div className="flex items-center gap-4">
-                            <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-3 lg:gap-4">
+                            <div className="hidden sm:flex flex-col items-end">
                                 <span className="text-sm font-bold text-text-primary">{profile?.full_name || 'User'}</span>
                                 <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{profile?.role || 'Guest'}</span>
                             </div>
@@ -82,7 +100,7 @@ const AppLayout = () => {
                 </header>
 
                 {/* Page Content */}
-                <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar">
                     <div className="max-w-7xl mx-auto space-y-10">
                         <Outlet />
                     </div>
