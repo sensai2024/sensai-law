@@ -13,13 +13,13 @@ export function useAdminUsersQuery() {
 }
 
 /**
- * Hook to invite a new employee
+ * Hook to create a new user directly
  */
-export function useInviteEmployeeMutation() {
+export function useCreateUserMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userData) => adminService.inviteEmployee(userData),
+    mutationFn: (userData) => adminService.createUser(userData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
     },

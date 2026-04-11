@@ -12,7 +12,7 @@ const AppLayout = () => {
     const queryClient = useQueryClient();
     const { profile } = useAuth();
     const logoutMutation = useLogoutMutation();
-    
+
     const handleRefresh = () => {
         queryClient.invalidateQueries();
     };
@@ -20,7 +20,7 @@ const AppLayout = () => {
     const handleLogout = () => {
         logoutMutation.mutate();
     };
-    
+
     const getPageTitle = (path) => {
         if (path.startsWith('/clients/')) return 'Client Details';
         switch (path) {
@@ -48,19 +48,16 @@ const AppLayout = () => {
                     <h2 className="text-2xl font-bold text-text-primary tracking-tight">
                         {getPageTitle(location.pathname)}
                     </h2>
-                    
+
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-3 pr-6 border-r border-border">
-                            <ActionButton 
-                                variant="secondary" 
-                                size="md" 
+                            <ActionButton
+                                variant="secondary"
+                                size="md"
                                 icon={RefreshCcw}
                                 onClick={handleRefresh}
                             >
                                 Refresh
-                            </ActionButton>
-                            <ActionButton variant="primary" size="md" icon={Plus}>
-                                New transcript
                             </ActionButton>
                         </div>
 
@@ -72,7 +69,7 @@ const AppLayout = () => {
                             <div className="w-10 h-10 rounded-full bg-surface-elevated border border-border flex items-center justify-center text-primary shadow-gold-glow">
                                 <User size={20} />
                             </div>
-                            <button 
+                            <button
                                 onClick={handleLogout}
                                 disabled={logoutMutation.isPending}
                                 className="p-2 text-text-muted hover:text-status-error transition-colors"

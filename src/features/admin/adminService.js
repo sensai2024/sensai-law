@@ -4,31 +4,50 @@ import { supabase } from '../../lib/supabase/client';
  * Fetch all users from the profiles table (Admin only)
  */
 export async function getAdminUsers() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const { data, error } = await supabase.functions.invoke('list-users');
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error fetching users via Edge Function:', error);
+    throw error;
+  }
+  
   return data;
 }
 
 /**
- * Invite/Create a new employee
- * NOTE: This normally requires the Supabase Service Role key which should NOT be in the frontend.
- * This implementation assumes there is a Supabase Edge Function named 'invite-user' 
- * or similar that handles the secure administrative action.
+ * Create a new user (Admin only)
+ * This calls a secure Edge Function 'create-user' which verifies the 
+ * admin's role before performing the administrative creation.
  */
-export async function inviteEmployee({ email, full_name, role }) {
-  // Option A: Call an Edge Function (Recommended)
-  const { data, error } = await supabase.functions.invoke('invite-user', {
-    body: { email, full_name, role },
+export async function createUser({ email, password, full_name, role }) {
+  // 1. Verify and log session for debugging
+  const { data: { session } } = await supabase.auth.getSession();
+  console.log('Current Session before calling create-user:', session);
+  
+  if (!session) {
+    console.error('No active session found. Aborting creation.');
+    throw new Error('No active session found. Please login.');
+  }
+
+  const { data, error } = await supabase.functions.invoke('create-user', {
+    body: { email, password, full_name, role },
   });
   
-  // If the edge function is not setup, we'll fall back to a mock/error 
-  // or a direct table insert if the user prefers that (though it won't create an Auth user)
   if (error) {
-    console.warn('Edge function "invite-user" not found or failed. Ensure your Supabase project is configured.');
+    console.error('Error in create-user function:', error);
+    console.log('Error status:', error.status);
+    console.log('Error name:', error.name);
+    
+    // Attempt to parse and log the detailed error body from the function
+    try {
+      if (error.context && typeof error.context.json === 'function') {
+        const details = await error.context.json();
+        console.error('Granular Error Details from Function (Stringified):', JSON.stringify(details, null, 2));
+      }
+    } catch (parseErr) {
+      console.warn('Could not parse error details response:', parseErr);
+    }
+    
     throw error;
   }
 

@@ -1,27 +1,39 @@
 import React, { useState } from 'react';
-import { useAdminUsersQuery, useInviteEmployeeMutation, useTriggerPasswordResetMutation } from './adminHooks';
+import { useAdminUsersQuery, useCreateUserMutation, useTriggerPasswordResetMutation } from './adminHooks';
 
 const AdminUsersPage = () => {
   const { data: users, isLoading, error } = useAdminUsersQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newUserInfo, setNewUserInfo] = useState({ email: '', full_name: '', role: 'employee' });
+  const [newUserInfo, setNewUserInfo] = useState({ 
+    email: '', 
+    password: '', 
+    full_name: '', 
+    role: 'employee' 
+  });
   const [actionStatus, setActionStatus] = useState({ type: '', message: '' });
 
-  const inviteMutation = useInviteEmployeeMutation();
+  const createMutation = useCreateUserMutation();
   const resetMutation = useTriggerPasswordResetMutation();
 
-  const handleInvite = (e) => {
+  // Sort users: Admins first, then by creation date
+  const sortedUsers = users ? [...users].sort((a, b) => {
+    if (a.role === 'admin' && b.role !== 'admin') return -1;
+    if (a.role !== 'admin' && b.role === 'admin') return 1;
+    return new Date(b.created_at) - new Date(a.created_at);
+  }) : [];
+
+  const handleCreateUser = (e) => {
     e.preventDefault();
     setActionStatus({ type: '', message: '' });
     
-    inviteMutation.mutate(newUserInfo, {
+    createMutation.mutate(newUserInfo, {
       onSuccess: () => {
         setIsModalOpen(false);
-        setNewUserInfo({ email: '', full_name: '', role: 'employee' });
-        setActionStatus({ type: 'success', message: 'User invited successfully!' });
+        setNewUserInfo({ email: '', password: '', full_name: '', role: 'employee' });
+        setActionStatus({ type: 'success', message: 'User created successfully!' });
       },
       onError: (err) => {
-        setActionStatus({ type: 'error', message: err.message || 'Failed to invite user.' });
+        setActionStatus({ type: 'error', message: err.message || 'Failed to create user.' });
       }
     });
   };
@@ -51,7 +63,7 @@ const AdminUsersPage = () => {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          Invite Employee
+          Create New User
         </button>
       </div>
 
@@ -82,11 +94,12 @@ const AdminUsersPage = () => {
                 <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Email</th>
                 <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Role</th>
                 <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Last Active</th>
                 <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {users?.map((user) => (
+              {sortedUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-800/30 transition-colors">
                   <td className="px-6 py-4 text-white font-medium">{user.full_name || 'N/A'}</td>
                   <td className="px-6 py-4 text-slate-400">{user.email}</td>
@@ -103,6 +116,11 @@ const AdminUsersPage = () => {
                       {user.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
+                  <td className="px-6 py-4 text-slate-400 text-sm">
+                    {user.last_sign_in_at 
+                      ? new Date(user.last_sign_in_at).toLocaleDateString() + ' ' + new Date(user.last_sign_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : 'Never'}
+                  </td>
                   <td className="px-6 py-4 text-right">
                     <button
                       onClick={() => handleResetPassword(user.email)}
@@ -118,17 +136,17 @@ const AdminUsersPage = () => {
         )}
       </div>
 
-      {/* Invite User Modal */}
+      {/* Create User Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden animate-in zoom-in duration-200">
             <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-white">Invite New Team Member</h3>
+              <h3 className="text-xl font-bold text-white">Create New User</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white transition-colors">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
-            <form onSubmit={handleInvite} className="p-6 space-y-4">
+            <form onSubmit={handleCreateUser} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
                 <input
@@ -152,6 +170,18 @@ const AdminUsersPage = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium text-slate-300 mb-1">Initial Password</label>
+                <input
+                  type="password"
+                  required
+                  minLength={6}
+                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+                  value={newUserInfo.password}
+                  onChange={(e) => setNewUserInfo({ ...newUserInfo, password: e.target.value })}
+                  placeholder="••••••••"
+                />
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Role</label>
                 <select
                   className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
@@ -165,12 +195,12 @@ const AdminUsersPage = () => {
               <div className="pt-4">
                 <button
                   type="submit"
-                  disabled={inviteMutation.isPending}
+                  disabled={createMutation.isPending}
                   className="w-full bg-primary hover:bg-primary/90 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20 flex justify-center"
                 >
-                  {inviteMutation.isPending ? (
+                  {createMutation.isPending ? (
                     <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-slate-950"></span>
-                  ) : 'Send Invite'}
+                  ) : 'Create User'}
                 </button>
               </div>
             </form>
