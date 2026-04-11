@@ -36,7 +36,9 @@ const CrmApprovals = () => {
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
+  const [activeDecision, setActiveDecision] = useState(null); // 'approved' | 'rejected' | null
   const { user } = useAuth();
+
 
   const { data, isLoading, isError } = useCrmApprovalsGroupedQuery();
   const versionsQuery = useCrmApprovalVersionsQuery(selectedTranscriptId);
@@ -124,24 +126,29 @@ const CrmApprovals = () => {
   };
 
   const handleDecision = async (status) => {
-    if (!selectedVersion) return;
+    // Guard: no record selected, or a decision is already in-flight
+    if (!selectedVersion || decisionMutation.isPending) return;
+    setActiveDecision(status);
     try {
       const reviewerEmail = user?.email || 'unknown';
-      await decisionMutation.mutateAsync({ 
-        crmApproval: selectedVersion, 
+      await decisionMutation.mutateAsync({
+        crmApproval: selectedVersion,
         reviewerEmail,
         status,
       });
-      // Close the panel — the query invalidation in the hook
-      // triggers a refetch so the UI reflects n8n's DB update.
+      // Close the panel — query invalidation in the hook triggers a refetch
+      // so the UI reflects n8n's DB update.
       handleClosePanel();
     } catch (err) {
       console.error(`CRM ${status} failed:`, err);
+    } finally {
+      setActiveDecision(null);
     }
   };
 
-  const handleApprove = () => handleDecision('approved');
-  const handleReject  = () => handleDecision('rejected');
+  const handleApprove = (e) => { e.preventDefault(); handleDecision('approved'); };
+  const handleReject  = (e) => { e.preventDefault(); handleDecision('rejected'); };
+
 
   if (isLoading) {
     return (
@@ -260,45 +267,50 @@ const CrmApprovals = () => {
               <div className="flex items-center gap-3">
                 {!isEditMode ? (
                   <>
-                    <ActionButton 
-                      variant="secondary" 
-                      icon={Edit3} 
+                    <ActionButton
+                      type="button"
+                      variant="secondary"
+                      icon={Edit3}
                       onClick={handleStartEdit}
                       disabled={decisionMutation.isPending}
                     >
                       Edit Data
                     </ActionButton>
-                    <ActionButton 
-                      variant="danger" 
-                      icon={XCircle} 
+                    <ActionButton
+                      type="button"
+                      variant="danger"
+                      icon={XCircle}
                       onClick={handleReject}
-                      isLoading={decisionMutation.isPending}
-                      disabled={['approved', 'rejected'].includes(selectedVersion.status)}
+                      isLoading={activeDecision === 'rejected'}
+                      disabled={decisionMutation.isPending || ['approved', 'rejected'].includes(selectedVersion.status)}
                     >
-                      Reject
+                      {selectedVersion.status === 'rejected' ? 'Rejected' : 'Reject'}
                     </ActionButton>
-                    <ActionButton 
-                      variant="primary" 
-                      icon={CloudUpload} 
+                    <ActionButton
+                      type="button"
+                      variant="primary"
+                      icon={CloudUpload}
                       onClick={handleApprove}
-                      isLoading={decisionMutation.isPending}
-                      disabled={['approved', 'rejected'].includes(selectedVersion.status)}
+                      isLoading={activeDecision === 'approved'}
+                      disabled={decisionMutation.isPending || ['approved', 'rejected'].includes(selectedVersion.status)}
                     >
                       {selectedVersion.status === 'approved' ? 'Approved ✓' : 'Approve'}
                     </ActionButton>
                   </>
                 ) : (
                   <>
-                    <ActionButton 
-                      variant="secondary" 
+                    <ActionButton
+                      type="button"
+                      variant="secondary"
                       onClick={() => setIsEditMode(false)}
                       disabled={saveMutation.isPending}
                     >
                       Cancel
                     </ActionButton>
-                    <ActionButton 
-                      variant="primary" 
-                      icon={Save} 
+                    <ActionButton
+                      type="button"
+                      variant="primary"
+                      icon={Save}
                       onClick={handleSaveEdit}
                       isLoading={saveMutation.isPending}
                     >
