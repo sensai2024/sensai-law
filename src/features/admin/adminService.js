@@ -67,8 +67,16 @@ export async function updateAdminUser(userId, userData) {
 
 /**
  * Delete a user (Admin only)
+ * Self-deletion is always rejected — an admin must not be able to delete
+ * their own account, even if the UI guard is bypassed.
  */
 export async function deleteAdminUser(userId) {
+  const { data: { session } } = await supabase.auth.getSession();
+
+  if (session?.user?.id && session.user.id === userId) {
+    throw new Error('Self-deletion is not permitted. You cannot delete your own account.');
+  }
+
   const { data, error } = await supabase.functions.invoke('delete-user', {
     body: { userId },
   });

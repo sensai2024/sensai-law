@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Pencil, Trash2, Mail, Lock, User, Shield, X, AlertTriangle, UserPlus, RefreshCcw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Pencil, Trash2, Mail, Lock, User, Shield, X, AlertTriangle, UserPlus, RefreshCcw, Ban } from 'lucide-react';
 import { 
   useAdminUsersQuery, 
   useCreateUserMutation, 
@@ -11,6 +11,7 @@ import ActionButton from '../../components/ui/ActionButton';
 import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { cn } from '../../lib/utils';
+import { supabase } from '../../lib/supabase/client';
 
 const AdminUsersPage = () => {
   const { data: users, isLoading, error, refetch } = useAdminUsersQuery();
@@ -18,6 +19,17 @@ const AdminUsersPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // Track the logged-in admin's own ID to prevent self-deletion
+  const [currentUserId, setCurrentUserId] = useState(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id) setCurrentUserId(session.user.id);
+    });
+  }, []);
+
+  // Returns true when the given row belongs to the currently logged-in user
+  const isSelf = (user) => user.id === currentUserId;
   
   const [newUserInfo, setNewUserInfo] = useState({ 
     email: '', 
@@ -90,11 +102,19 @@ const AdminUsersPage = () => {
   };
 
   const handleDeleteClick = (user) => {
+    // Safety: never open the delete modal for the current user's own account
+    if (isSelf(user)) return;
     setSelectedUser(user);
     setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = () => {
+    // Service-layer guard: abort if somehow triggered for self
+    if (isSelf(selectedUser)) {
+      setActionStatus({ type: 'error', message: 'You cannot delete your own account.' });
+      setIsDeleteModalOpen(false);
+      return;
+    }
     setActionStatus({ type: '', message: '' });
     deleteMutation.mutate(selectedUser.id, {
       onSuccess: () => {
@@ -240,13 +260,23 @@ const AdminUsersPage = () => {
                           icon={Pencil} 
                           onClick={() => handleEditUser(user)}
                         />
-                        <ActionButton 
-                          variant="ghost" 
-                          size="sm" 
-                          icon={Trash2} 
-                          className="hover:text-status-error hover:bg-status-error/10"
-                          onClick={() => handleDeleteClick(user)}
-                        />
+                        {isSelf(user) ? (
+                          <div
+                            title="You cannot delete your own account"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-text-muted/40 cursor-not-allowed select-none text-[11px] font-bold uppercase tracking-wider border border-border/30"
+                          >
+                            <Ban size={13} />
+                            <span>You</span>
+                          </div>
+                        ) : (
+                          <ActionButton 
+                            variant="ghost" 
+                            size="sm" 
+                            icon={Trash2} 
+                            className="hover:text-status-error hover:bg-status-error/10"
+                            onClick={() => handleDeleteClick(user)}
+                          />
+                        )}
                       </div>
                     </td>
                   </tr>
