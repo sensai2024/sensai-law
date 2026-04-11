@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useLoginMutation } from './authHooks';
+import ActionButton from '../../components/ui/ActionButton';
+import { ShieldCheck, Mail, Lock } from 'lucide-react';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -31,89 +33,102 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
-      <div className="max-w-md w-full space-y-8 p-8 bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl">
-        <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="bg-primary/20 p-3 rounded-xl">
-              <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 relative overflow-hidden">
+      {/* Abstract Background Element */}
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+
+      <div className="max-w-md w-full z-10">
+        <div className="text-center mb-10">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-surface-highlight border border-border rounded-2xl flex items-center justify-center text-primary shadow-gold-glow">
+              <ShieldCheck size={32} />
             </div>
           </div>
-          <h2 className="text-3xl font-extrabold text-white">Altata Légal</h2>
-          <p className="mt-2 text-sm text-slate-400">Automation Hub Login</p>
+          <h2 className="text-3xl font-bold text-text-primary tracking-tight">Altata Légal</h2>
+          <p className="mt-2 text-sm font-bold tracking-[0.2em] text-text-muted uppercase">Automation Hub</p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email-address" className="block text-sm font-medium text-slate-300">
-                Email Address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="mt-1 block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" name="password" className="block text-sm font-medium text-slate-300">
-                  Password
-                </label>
-                <Link to="/forgot-password" name="forgot-password-link" className="text-xs text-primary hover:text-primary/80 transition-colors">
-                  Forgot password?
-                </Link>
+        <div className="bg-surface p-8 rounded-2xl border border-border shadow-premium relative group transition-all duration-500 hover:border-primary/20">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-status-error/10 border border-status-error/30 text-status-error p-3 rounded-lg text-xs font-medium animate-in fade-in slide-in-from-top-1">
+                {error}
               </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="mt-1 block w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
+            )}
 
-          <div>
-            <button
-              id="login-button"
-              type="submit"
-              disabled={loginMutation.isPending}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-slate-950 bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
-            >
-              {loginMutation.isPending ? (
-                <svg className="animate-spin h-5 w-5 text-slate-950" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              ) : (
-                'Sign In'
-              )}
-            </button>
+            <div className="space-y-5">
+              <div>
+                <label htmlFor="email-address" className="block text-[10px] font-bold tracking-widest text-text-muted uppercase mb-2 ml-1">
+                  Email Address
+                </label>
+                <div className="relative group/input">
+                  <Mail className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                  <input
+                    id="email-address"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    className="block w-full pl-11 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                    placeholder="name@altata.legal"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2 ml-1">
+                  <label htmlFor="password" name="password" className="block text-[10px] font-bold tracking-widest text-text-muted uppercase">
+                    Password
+                  </label>
+                  <Link to="/forgot-password" name="forgot-password-link" className="text-[10px] font-bold text-primary hover:text-primary-hover transition-colors uppercase tracking-wider">
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative group/input">
+                  <Lock className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    className="block w-full pl-11 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <ActionButton
+                id="login-button"
+                type="submit"
+                loading={loginMutation.isPending}
+                className="w-full"
+                size="lg"
+              >
+                {loginMutation.isPending ? 'Logging in...' : 'Access Hub'}
+              </ActionButton>
+            </div>
+          </form>
+
+          <div className="mt-8 text-center bg-surface-highlight/50 -mx-8 -mb-8 p-4 rounded-b-2xl border-t border-border">
+            <p className="text-[10px] text-text-muted font-bold tracking-widest uppercase">
+              Secure Administrative Gateway
+            </p>
           </div>
-        </form>
+        </div>
         
-        <div className="mt-6 text-center">
-          <p className="text-xs text-slate-500 italic">
-            Authorized personnel only. Access is monitored and logged.
+        <div className="mt-8 text-center flex flex-col items-center gap-2">
+           <div className="w-1 h-8 bg-gradient-to-b from-primary/50 to-transparent rounded-full" />
+           <p className="text-[10px] text-text-muted italic px-10">
+            Authorized personnel only. Digital identification required. 
+            All access attempts are registered in the Altata Légal security ledger.
           </p>
         </div>
       </div>

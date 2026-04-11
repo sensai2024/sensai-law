@@ -55,6 +55,28 @@ export async function createUser({ email, password, full_name, role }) {
 }
 
 /**
+ * Update an existing user (Admin only)
+ */
+export async function updateAdminUser(userId, userData) {
+  const { data, error } = await supabase.functions.invoke('update-user', {
+    body: { userId, ...userData },
+  });
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Delete a user (Admin only)
+ */
+export async function deleteAdminUser(userId) {
+  const { data, error } = await supabase.functions.invoke('delete-user', {
+    body: { userId },
+  });
+  if (error) throw error;
+  return data;
+}
+
+/**
  * Trigger a password reset for a specific user (Admin only)
  */
 export async function triggerUserPasswordReset(email) {

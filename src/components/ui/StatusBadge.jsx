@@ -16,6 +16,12 @@ const StatusBadge = ({ status, className }) => {
     if (['processing', 'info'].includes(s)) {
       return 'bg-status-processing/10 text-status-processing border-status-processing/20';
     }
+    if (s === 'admin') {
+      return 'bg-primary/10 text-primary border-primary/20';
+    }
+    if (s === 'employee') {
+      return 'bg-secondary/10 text-secondary border-secondary/20';
+    }
     return 'bg-surface-accent text-text-secondary border-border';
   };
 

@@ -1,18 +1,43 @@
 import React, { useState } from 'react';
-import { useAdminUsersQuery, useCreateUserMutation, useTriggerPasswordResetMutation } from './adminHooks';
+import { Pencil, Trash2, Mail, Lock, User, Shield, X, AlertTriangle, UserPlus, RefreshCcw } from 'lucide-react';
+import { 
+  useAdminUsersQuery, 
+  useCreateUserMutation, 
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+  useTriggerPasswordResetMutation 
+} from './adminHooks';
+import ActionButton from '../../components/ui/ActionButton';
+import SectionCard from '../../components/ui/SectionCard';
+import StatusBadge from '../../components/ui/StatusBadge';
+import { cn } from '../../lib/utils';
 
 const AdminUsersPage = () => {
-  const { data: users, isLoading, error } = useAdminUsersQuery();
+  const { data: users, isLoading, error, refetch } = useAdminUsersQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  
   const [newUserInfo, setNewUserInfo] = useState({ 
     email: '', 
     password: '', 
     full_name: '', 
     role: 'employee' 
   });
+
+  const [editUserInfo, setEditUserInfo] = useState({
+    full_name: '',
+    email: '',
+    role: '',
+    is_active: true
+  });
+
   const [actionStatus, setActionStatus] = useState({ type: '', message: '' });
 
   const createMutation = useCreateUserMutation();
+  const updateMutation = useUpdateUserMutation();
+  const deleteMutation = useDeleteUserMutation();
   const resetMutation = useTriggerPasswordResetMutation();
 
   // Sort users: Admins first, then by creation date
@@ -38,6 +63,51 @@ const AdminUsersPage = () => {
     });
   };
 
+  const handleEditUser = (user) => {
+    setSelectedUser(user);
+    setEditUserInfo({
+      full_name: user.full_name,
+      email: user.email,
+      role: user.role,
+      is_active: user.is_active
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateUser = (e) => {
+    e.preventDefault();
+    setActionStatus({ type: '', message: '' });
+    
+    updateMutation.mutate({ userId: selectedUser.id, userData: editUserInfo }, {
+      onSuccess: () => {
+        setIsEditModalOpen(false);
+        setActionStatus({ type: 'success', message: 'User updated successfully!' });
+      },
+      onError: (err) => {
+        setActionStatus({ type: 'error', message: err.message || 'Failed to update user.' });
+      }
+    });
+  };
+
+  const handleDeleteClick = (user) => {
+    setSelectedUser(user);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    setActionStatus({ type: '', message: '' });
+    deleteMutation.mutate(selectedUser.id, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false);
+        setActionStatus({ type: 'success', message: 'User deleted successfully!' });
+      },
+      onError: (err) => {
+        setIsDeleteModalOpen(false);
+        setActionStatus({ type: 'error', message: err.message || 'Failed to delete user.' });
+      }
+    });
+  };
+
   const handleResetPassword = (email) => {
     resetMutation.mutate(email, {
       onSuccess: () => {
@@ -50,161 +120,332 @@ const AdminUsersPage = () => {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">User Management</h1>
-          <p className="text-slate-400 mt-1">Manage system access and roles</p>
+          <h1 className="text-3xl font-bold text-text-primary tracking-tight">User Management</h1>
+          <p className="text-sm text-text-muted mt-1">Control system access, roles and secure identifications.</p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-slate-950 font-bold py-2 px-6 rounded-lg transition-all shadow-lg shadow-primary/20 flex items-center gap-2"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Create New User
-        </button>
+        <div className="flex items-center gap-3">
+           <ActionButton 
+            variant="secondary" 
+            icon={RefreshCcw} 
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
+            Refresh
+          </ActionButton>
+          <ActionButton 
+            variant="primary" 
+            icon={UserPlus} 
+            onClick={() => setIsModalOpen(true)}
+          >
+            Add New User
+          </ActionButton>
+        </div>
       </div>
 
+      {/* Status Notifications */}
       {actionStatus.message && (
-        <div className={`p-4 rounded-lg border flex items-center justify-between ${
-          actionStatus.type === 'success' ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-red-500/10 border-red-500/30 text-red-500'
-        }`}>
-          <span>{actionStatus.message}</span>
-          <button onClick={() => setActionStatus({ type: '', message: '' })} className="text-current opacity-50 hover:opacity-100 italic text-sm">Dismiss</button>
+        <div className={cn(
+          "p-4 rounded-xl border flex items-center justify-between animate-in slide-in-from-top-2 duration-300",
+          actionStatus.type === 'success' ? "bg-status-success/10 border-status-success/30 text-status-success" : "bg-status-error/10 border-status-error/30 text-status-error"
+        )}>
+          <div className="flex items-center gap-3 font-medium text-sm">
+            <Shield size={18} />
+            {actionStatus.message}
+          </div>
+          <button onClick={() => setActionStatus({ type: '', message: '' })} className="text-[10px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity">
+            Dismiss
+          </button>
         </div>
       )}
 
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-        {isLoading ? (
-          <div className="p-20 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
-            <span className="text-slate-400">Loading users...</span>
-          </div>
-        ) : error ? (
-          <div className="p-20 text-center text-red-500 font-medium">
-            Error loading users: {error.message}
-          </div>
-        ) : (
+      {/* Main Table Content */}
+      <SectionCard 
+        title="Active Directory" 
+        className="overflow-hidden"
+        headerActions={<div className="text-[10px] text-text-muted font-bold tracking-widest uppercase">{sortedUsers.length} total users</div>}
+      >
+        <div className="overflow-x-auto -mx-6 -mb-6">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-800/50 border-b border-slate-800">
-                <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Role</th>
-                <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider">Last Active</th>
-                <th className="px-6 py-4 text-sm font-semibold text-slate-300 uppercase tracking-wider text-right">Actions</th>
+              <tr className="bg-surface-highlight/50 border-b border-border">
+                <th className="px-8 py-4 text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Profile</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Access Role</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Status</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Last Active</th>
+                <th className="px-8 py-4 text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] text-right">Administrative Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
-              {sortedUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="px-6 py-4 text-white font-medium">{user.full_name || 'N/A'}</td>
-                  <td className="px-6 py-4 text-slate-400">{user.email}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                      user.role === 'admin' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/30' : 'bg-blue-500/10 text-blue-500 border border-blue-500/30'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`flex items-center gap-2 ${user.is_active ? 'text-green-500' : 'text-slate-500'}`}>
-                      <span className={`w-2 h-2 rounded-full ${user.is_active ? 'animate-pulse bg-green-500' : 'bg-slate-500'}`}></span>
-                      {user.is_active ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-slate-400 text-sm">
-                    {user.last_sign_in_at 
-                      ? new Date(user.last_sign_in_at).toLocaleDateString() + ' ' + new Date(user.last_sign_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                      : 'Never'}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => handleResetPassword(user.email)}
-                      className="text-primary hover:underline text-sm font-medium"
-                    >
-                      Reset Password
-                    </button>
+            <tbody className="divide-y divide-border/50">
+              {isLoading ? (
+                <tr>
+                  <td colSpan="5" className="px-8 py-32 text-center text-text-muted italic animate-pulse">
+                    Synchronizing ledger records...
                   </td>
                 </tr>
-              ))}
+              ) : error ? (
+                <tr>
+                  <td colSpan="5" className="px-8 py-32 text-center text-status-error font-medium">
+                    Error loading system users: {error.message}
+                  </td>
+                </tr>
+              ) : sortedUsers.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="px-8 py-32 text-center text-text-muted italic">
+                    No matching identifications found.
+                  </td>
+                </tr>
+              ) : (
+                sortedUsers.map((user) => (
+                  <tr key={user.id} className="hover:bg-surface-highlight/30 transition-colors group">
+                    <td className="px-8 py-5">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-text-primary group-hover:text-primary transition-colors">{user.full_name || 'Anonymous User'}</span>
+                        <span className="text-[11px] text-text-muted font-medium">{user.email}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      <StatusBadge status={user.role} />
+                    </td>
+                    <td className="px-8 py-5 text-sm">
+                       <div className={cn(
+                          "flex items-center gap-2 font-medium tracking-tight",
+                          user.is_active ? "text-status-success" : "text-text-muted"
+                        )}>
+                          <div className={cn("w-1.5 h-1.5 rounded-full", user.is_active ? "bg-status-success shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-surface-accent")} />
+                          {user.is_active ? "Operational" : "Deactivated"}
+                        </div>
+                    </td>
+                    <td className="px-8 py-5 text-[11px] font-medium text-text-secondary italic">
+                      {user.last_sign_in_at 
+                        ? new Date(user.last_sign_in_at).toLocaleDateString() + ' ' + new Date(user.last_sign_in_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : 'First access pending'}
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 transition-transform duration-300">
+                        <ActionButton 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleResetPassword(user.email)}
+                          title="Reset Security Key"
+                        >
+                          Reset
+                        </ActionButton>
+                        <ActionButton 
+                          variant="secondary" 
+                          size="sm" 
+                          icon={Pencil} 
+                          onClick={() => handleEditUser(user)}
+                        />
+                        <ActionButton 
+                          variant="ghost" 
+                          size="sm" 
+                          icon={Trash2} 
+                          className="hover:text-status-error hover:bg-status-error/10"
+                          onClick={() => handleDeleteClick(user)}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        )}
-      </div>
+        </div>
+      </SectionCard>
 
       {/* Create User Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden animate-in zoom-in duration-200">
-            <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-              <h3 className="text-xl font-bold text-white">Create New User</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-white transition-colors">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            <form onSubmit={handleCreateUser} className="p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+          <SectionCard 
+            title="Provision New Identity" 
+            className="w-full max-w-md shadow-gold-glow animate-in zoom-in-95 duration-200"
+            headerActions={<button onClick={() => setIsModalOpen(false)} className="text-text-muted hover:text-text-primary transition-colors"><X size={20} /></button>}
+          >
+            <form onSubmit={handleCreateUser} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
-                  value={newUserInfo.full_name}
-                  onChange={(e) => setNewUserInfo({ ...newUserInfo, full_name: e.target.value })}
-                  placeholder="John Doe"
-                />
+                <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase mb-2">Subject Name</label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 text-text-muted" size={16} />
+                   <input
+                    type="text"
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
+                    value={newUserInfo.full_name}
+                    onChange={(e) => setNewUserInfo({ ...newUserInfo, full_name: e.target.value })}
+                    placeholder="Full Legal Name"
+                  />
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
-                  value={newUserInfo.email}
-                  onChange={(e) => setNewUserInfo({ ...newUserInfo, email: e.target.value })}
-                  placeholder="john@company.com"
-                />
+                <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase mb-2">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 text-text-muted" size={16} />
+                   <input
+                    type="email"
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
+                    value={newUserInfo.email}
+                    onChange={(e) => setNewUserInfo({ ...newUserInfo, email: e.target.value })}
+                    placeholder="name@altata.legal"
+                  />
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Initial Password</label>
-                <input
-                  type="password"
-                  required
-                  minLength={6}
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
-                  value={newUserInfo.password}
-                  onChange={(e) => setNewUserInfo({ ...newUserInfo, password: e.target.value })}
-                  placeholder="••••••••"
-                />
+                <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase mb-2">Security Key</label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 text-text-muted" size={16} />
+                   <input
+                    type="password"
+                    required
+                    minLength={6}
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
+                    value={newUserInfo.password}
+                    onChange={(e) => setNewUserInfo({ ...newUserInfo, password: e.target.value })}
+                    placeholder="••••••••"
+                  />
+                </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Role</label>
-                <select
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
-                  value={newUserInfo.role}
-                  onChange={(e) => setNewUserInfo({ ...newUserInfo, role: e.target.value })}
-                >
-                  <option value="employee">Employee</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase mb-2">Access Privilege</label>
+                <div className="relative">
+                  <Shield className="absolute left-3 top-3 text-text-muted" size={16} />
+                  <select
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface-highlight border border-border rounded-xl text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm appearance-none"
+                    value={newUserInfo.role}
+                    onChange={(e) => setNewUserInfo({ ...newUserInfo, role: e.target.value })}
+                  >
+                    <option value="employee">Standard Employee</option>
+                    <option value="admin">System Administrator</option>
+                  </select>
+                </div>
               </div>
-              <div className="pt-4">
-                <button
+              <div className="pt-6">
+                 <ActionButton
                   type="submit"
-                  disabled={createMutation.isPending}
-                  className="w-full bg-primary hover:bg-primary/90 text-slate-950 font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20 flex justify-center"
+                  loading={createMutation.isPending}
+                  className="w-full"
                 >
-                  {createMutation.isPending ? (
-                    <span className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-slate-950"></span>
-                  ) : 'Create User'}
-                </button>
+                  Confirm Provisioning
+                </ActionButton>
               </div>
             </form>
-          </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+           <SectionCard 
+            title="Modify Identification" 
+            className="w-full max-w-md animate-in zoom-in-95 duration-200"
+            headerActions={<button onClick={() => setIsEditModalOpen(false)} className="text-text-muted hover:text-text-primary transition-colors"><X size={20} /></button>}
+          >
+            <div className="mb-6 p-3 bg-surface-highlight/50 rounded-xl border border-border/50">
+               <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">Subject UUID</p>
+               <p className="text-[11px] text-primary truncate font-mono">{selectedUser?.id}</p>
+            </div>
+            <form onSubmit={handleUpdateUser} className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase mb-2">Name</label>
+                 <div className="relative">
+                   <User className="absolute left-3 top-3 text-text-muted" size={16} />
+                   <input
+                    type="text"
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface-highlight border border-border rounded-xl text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
+                    value={editUserInfo.full_name}
+                    onChange={(e) => setEditUserInfo({ ...editUserInfo, full_name: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase mb-2">Identified Email</label>
+                 <div className="relative">
+                   <Mail className="absolute left-3 top-3 text-text-muted" size={16} />
+                   <input
+                    type="email"
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface-highlight border border-border rounded-xl text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
+                    value={editUserInfo.email}
+                    onChange={(e) => setEditUserInfo({ ...editUserInfo, email: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase mb-2">Role Level</label>
+                <div className="relative">
+                  <Shield className="absolute left-3 top-3 text-text-muted" size={16} />
+                  <select
+                    className="w-full pl-10 pr-4 py-2.5 bg-surface-highlight border border-border rounded-xl text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm appearance-none"
+                    value={editUserInfo.role}
+                    onChange={(e) => setEditUserInfo({ ...editUserInfo, role: e.target.value })}
+                  >
+                    <option value="employee">Employee</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-surface-highlight/30 rounded-xl border border-border/50">
+                <input
+                  id="user-active"
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary/50 bg-background"
+                  checked={editUserInfo.is_active}
+                  onChange={(e) => setEditUserInfo({ ...editUserInfo, is_active: e.target.checked })}
+                />
+                <label htmlFor="user-active" className="text-xs font-bold text-text-secondary cursor-pointer uppercase tracking-wider">
+                  Active Operational Status
+                </label>
+              </div>
+              <div className="pt-6">
+                 <ActionButton
+                  type="submit"
+                  loading={updateMutation.isPending}
+                  className="w-full"
+                >
+                  Apply System Changes
+                </ActionButton>
+              </div>
+            </form>
+          </SectionCard>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-background/90 backdrop-blur-lg p-4 animate-in fade-in duration-300">
+           <div className="bg-surface max-w-sm w-full rounded-2xl border border-status-error/30 shadow-2xl p-8 text-center animate-in zoom-in-95 duration-200">
+              <div className="w-20 h-20 bg-status-error/10 text-status-error rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+                <AlertTriangle size={40} />
+              </div>
+              <h3 className="text-xl font-bold text-text-primary mb-3">Terminate Access?</h3>
+              <p className="text-sm text-text-muted mb-8 leading-relaxed">
+                You are about to permanently purge the identification record for <span className="text-text-primary font-bold">{selectedUser?.full_name}</span>. 
+                This action is irreversible in the security ledger.
+              </p>
+              <div className="flex flex-col gap-3">
+                 <ActionButton
+                  variant="danger"
+                  className="w-full"
+                  loading={deleteMutation.isPending}
+                  onClick={handleDeleteConfirm}
+                >
+                  Confirm Termination
+                </ActionButton>
+                <ActionButton
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => setIsDeleteModalOpen(false)}
+                >
+                  Abort Action
+                </ActionButton>
+              </div>
+           </div>
         </div>
       )}
     </div>
