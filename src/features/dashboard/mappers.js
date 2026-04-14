@@ -4,7 +4,7 @@
 const GEMINI_RATE_PER_TOKEN = 0.075 / 1_000_000;
 
 export function mapDashboardData(data) {
-  const { contracts, approvals, transcripts, activities, pipelineRuns } = data;
+  const { contracts, approvals, activities, pipelineRuns } = data;
 
   // ── Row 1 ────────────────────────────────────────────────────────────────
 

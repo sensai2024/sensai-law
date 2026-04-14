@@ -47,7 +47,7 @@ const CrmApprovals = () => {
   const saveMutation = useSaveEditedCrmApprovalMutation();
 
 
-  const formatDate = (dateString, pattern = 'MMM d, HH:mm') => {
+  const formatDate = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return 'Invalid Date';

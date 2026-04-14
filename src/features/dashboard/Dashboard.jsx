@@ -1,14 +1,14 @@
 // src/features/dashboard/Dashboard.jsx
 import React from 'react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  Cell
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    Cell
 } from 'recharts';
 import StatCard from '../../components/ui/StatCard';
 import SectionCard from '../../components/ui/SectionCard';
@@ -22,7 +22,7 @@ const Dashboard = () => {
         return (
             <div className="space-y-10 pb-10 animate-pulse">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {[1,2,3,4].map(i => <div key={i} className="h-24 bg-surface-elevated rounded-xl"></div>)}
+                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-surface-elevated rounded-xl"></div>)}
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 h-96 bg-surface-elevated rounded-xl"></div>
@@ -49,7 +49,7 @@ const Dashboard = () => {
             {/* KPI Grid — 2 rows × 4 columns */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {dashboardStats.map((stat) => (
-                    <StatCard 
+                    <StatCard
                         key={stat.id}
                         label={stat.label}
                         value={stat.value}
@@ -61,33 +61,33 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Contracts Chart */}
-                <SectionCard 
-                    title="CONTRACTS GENERATED — LAST 30 DAYS" 
+                <SectionCard
+                    title="CONTRACTS GENERATED — LAST 30 DAYS"
                     className="lg:col-span-2 min-h-[400px]"
                 >
                     {contractsChartData.length > 0 ? (
-                        <div className="h-[300px] w-full mt-4">
-                            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                        <div className="w-full min-w-0 mt-4 h-[300px]">
+                            <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={contractsChartData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
-                                    <XAxis 
-                                        dataKey="name" 
-                                        stroke="#71717a" 
-                                        fontSize={10} 
-                                        tickLine={false} 
+                                    <XAxis
+                                        dataKey="name"
+                                        stroke="#71717a"
+                                        fontSize={10}
+                                        tickLine={false}
                                         axisLine={false}
                                         dy={10}
                                     />
-                                    <YAxis 
-                                        stroke="#71717a" 
-                                        fontSize={10} 
-                                        tickLine={false} 
+                                    <YAxis
+                                        stroke="#71717a"
+                                        fontSize={10}
+                                        tickLine={false}
                                         axisLine={false}
                                         dx={-10}
                                     />
-                                    <Tooltip 
-                                        contentStyle={{ 
-                                            backgroundColor: '#121214', 
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: '#121214',
                                             border: '1px solid #27272a',
                                             borderRadius: '8px',
                                             fontSize: '11px',
@@ -95,8 +95,8 @@ const Dashboard = () => {
                                         }}
                                         cursor={{ fill: '#1c1c1f' }}
                                     />
-                                    <Bar 
-                                        dataKey="value" 
+                                    <Bar
+                                        dataKey="value"
                                         radius={[4, 4, 0, 0]}
                                         className="fill-primary/80 hover:fill-primary transition-all duration-300"
                                     >
@@ -122,11 +122,10 @@ const Dashboard = () => {
                                 <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
                                     {item.label}
                                 </span>
-                                <span className={`text-lg font-bold ${
-                                    item.type === 'success' ? 'text-status-success' : 
-                                    item.type === 'error' ? 'text-status-error' : 
-                                    item.type === 'gold' ? 'text-primary' : 'text-text-primary'
-                                }`}>
+                                <span className={`text-lg font-bold ${item.type === 'success' ? 'text-status-success' :
+                                        item.type === 'error' ? 'text-status-error' :
+                                            item.type === 'gold' ? 'text-primary' : 'text-text-primary'
+                                    }`}>
                                     {item.value}
                                 </span>
                             </div>
@@ -144,10 +143,9 @@ const Dashboard = () => {
                         {recentActivity.map((activity) => (
                             <div key={activity.id} className="flex items-center justify-between py-3 border-b border-border last:border-0 hover:bg-surface-highlight/20 px-4 -mx-4 rounded-lg transition-colors">
                                 <div className="flex items-center gap-4">
-                                    <div className={`w-2 h-2 rounded-full ${
-                                        activity.status === 'success' || activity.status === 'Generated' ? 'bg-status-success' :
-                                        activity.status === 'warning' || activity.status === 'Pending' ? 'bg-status-warning' : 'bg-status-error'
-                                    }`} />
+                                    <div className={`w-2 h-2 rounded-full ${activity.status === 'success' || activity.status === 'Generated' ? 'bg-status-success' :
+                                            activity.status === 'warning' || activity.status === 'Pending' ? 'bg-status-warning' : 'bg-status-error'
+                                        }`} />
                                     <div>
                                         <p className="text-sm font-semibold text-text-primary">
                                             {activity.action}: <span className="text-primary">{activity.target}</span>

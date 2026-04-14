@@ -10,11 +10,11 @@ export async function signIn(email, password) {
   });
 
   if (error) {
-    console.error('DEBUG [authService]: Login failed:', error.message);
+
     throw error;
   }
-  
-  console.log('DEBUG [authService]: Login successful for:', data.user.id);
+
+
   return data;
 }
 
@@ -22,7 +22,7 @@ export async function signIn(email, password) {
  * Sign out the current user
  */
 export async function signOut() {
-  console.log('DEBUG [authService]: Signing out...');
+
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
@@ -52,11 +52,11 @@ export async function updatePassword(newPassword) {
  */
 export async function getCurrentUserProfile(userId) {
   if (!userId) {
-    console.log('DEBUG [authService]: No userId provided to getCurrentUserProfile');
+
     return null;
   }
 
-  console.log('DEBUG [authService]: Fetching profile for ID:', userId);
+
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
@@ -65,15 +65,15 @@ export async function getCurrentUserProfile(userId) {
     .maybeSingle();
 
   if (profileError) {
-    console.error('DEBUG [authService]: Database error while fetching profile:', profileError);
+
     return null;
   }
 
   if (!profile) {
-    console.warn('DEBUG [authService]: No profile found in database for ID:', userId);
+
     return null;
   }
 
-  console.log('DEBUG [authService]: Profile fetched successfully:', profile);
+
   return profile;
 }

@@ -31,10 +31,10 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Fetch profile ONLY when session exists
-  const { 
-    data: profile, 
+  const {
+    data: profile,
     isLoading: isLoadingProfile,
-    refetch: refetchProfile 
+    refetch: refetchProfile
   } = useCurrentUserProfileQuery(session?.user?.id);
 
   const isAdmin = profile?.role === 'admin';
@@ -42,23 +42,23 @@ export const AuthProvider = ({ children }) => {
   // Enhanced Debugging Lifecycle Logs
   useEffect(() => {
     if (isLoadingSession) {
-      console.log('DEBUG [AuthContext]: Initializing session...');
+
       return;
     }
 
     if (!session) {
-      console.log('DEBUG [AuthContext]: No active session found.');
+
       return;
     }
 
-    console.log('DEBUG [AuthContext]: Session discovered for user:', session.user.id);
+
 
     if (isLoadingProfile) {
-      console.log('DEBUG [AuthContext]: Fetching profile details...');
+
     } else if (profile) {
-      console.log('DEBUG [AuthContext]: Profile loaded. Role:', profile.role, '| isAdmin:', isAdmin);
+
     } else {
-      console.warn('DEBUG [AuthContext]: Session exists but profile is missing in database.');
+
     }
   }, [session, profile, isAdmin, isLoadingSession, isLoadingProfile]);
 
