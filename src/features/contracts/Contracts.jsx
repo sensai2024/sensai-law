@@ -249,7 +249,7 @@ const ContractDetails = ({ contractId, onBack }) => {
   const saveMutation = useSaveEditedContractMutation();
 
   const [localContent, setLocalContent] = useState(undefined);
-  const [viewMode, setViewMode] = useState('preview'); // 'preview' or 'source'
+
 
   const currentContent = localContent ?? contract?.content ?? '';
   const hasChanges = localContent !== undefined && localContent !== contract?.content;
@@ -346,20 +346,10 @@ const ContractDetails = ({ contractId, onBack }) => {
               </div>
             }
           >
-            {viewMode === 'preview' ? (
               <div
                 className="w-full h-[600px] overflow-y-auto bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed custom-scrollbar prose prose-sm prose-invert max-w-none"
                 dangerouslySetInnerHTML={{ __html: cleanContractHtml(currentContent) }}
               />
-            ) : (
-              <textarea
-                className="w-full h-[600px] bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed focus:outline-none focus:border-primary/50 transition-colors resize-none font-mono"
-                value={currentContent}
-                onChange={handleContentChange}
-                disabled={isProcessing}
-                placeholder="Contract content will appear here..."
-              />
-            )}
           </SectionCard>
         </div>
 

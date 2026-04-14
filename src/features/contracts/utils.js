@@ -1,5 +1,3 @@
-import DOMPurify from 'dompurify';
-
 /**
  * Cleans the raw HTML string representing a contract.
  * @param {string} rawHtml
@@ -31,8 +29,6 @@ export function cleanContractHtml(rawHtml) {
       .replace(/<\/body>/gi, '');
   }
 
-  // 3. Sanitize final HTML before rendering
-  const cleanHtml = DOMPurify.sanitize(bodyContent);
-
-  return cleanHtml;
+  // 3. Return cleaned HTML
+  return bodyContent;
 }
