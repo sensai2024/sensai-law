@@ -10,7 +10,7 @@ export async function getDashboardData() {
       { data: activities, error: actErr },
       { data: pipelineRuns, error: pErr }
     ] = await Promise.all([
-      supabase.from('contracts').select('id, status, created_at, tokens_used').limit(100),
+      supabase.from('contracts').select('id, status, created_at, cost_eur, tokens_used').limit(100),
       supabase.from('crm_approvals').select('id, status').limit(100),
       supabase.from('transcripts').select('id, status, created_at').limit(100),
       supabase.from('activity_log').select('id, type, title, detail, metadata, created_at').order('created_at', { ascending: false }).limit(5),
