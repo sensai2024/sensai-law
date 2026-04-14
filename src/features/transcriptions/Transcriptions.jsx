@@ -4,15 +4,15 @@ import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ActionButton from '../../components/ui/ActionButton';
 import SlidePanel from '../../components/ui/SlidePanel';
-import { 
-    FileText, 
-    Play, 
-    MoreVertical, 
-    Search, 
-    Filter, 
-    Calendar, 
-    User, 
-    Mail, 
+import {
+    FileText,
+    Play,
+    MoreVertical,
+    Search,
+    Filter,
+    Calendar,
+    User,
+    Mail,
     RefreshCcw,
     CheckCircle2,
     AlertCircle,
@@ -25,7 +25,7 @@ import ReactMarkdown from 'react-markdown';
 const Transcriptions = () => {
     const [selectedTranscription, setSelectedTranscription] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
-    
+
     const { data: transcriptions, isLoading, isError, refetch } = useTranscriptionsQuery();
     const approveMutation = useApproveTranscriptionMutation();
 
@@ -39,7 +39,7 @@ const Transcriptions = () => {
 
     const handleApprove = async () => {
         if (!selectedTranscription) return;
-        
+
         try {
             await approveMutation.mutateAsync(selectedTranscription);
             // Optional: Show success toast here if a toast system exists
@@ -73,7 +73,7 @@ const Transcriptions = () => {
         );
     }
 
-    const filteredTranscriptions = (transcriptions || []).filter(t => 
+    const filteredTranscriptions = (transcriptions || []).filter(t =>
         t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (t.clientName && t.clientName.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (t.clientEmail && t.clientEmail.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -91,9 +91,9 @@ const Transcriptions = () => {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-4 rounded-xl border border-border shadow-soft">
                 <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted transition-colors group-focus-within:text-primary" size={16} />
-                    <input 
-                        type="text" 
-                        placeholder="Search by title, client or email..." 
+                    <input
+                        type="text"
+                        placeholder="Search by title, client or email..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all font-medium"
@@ -111,24 +111,24 @@ const Transcriptions = () => {
             {/* Transcription List */}
             <div className="grid grid-cols-1 gap-4">
                 {filteredTranscriptions.map((t) => (
-                    <div 
-                        key={t.id} 
+                    <div
+                        key={t.id}
                         onClick={() => handleOpenDetails(t)}
                         className="bg-surface rounded-xl border border-border p-5 hover:border-primary/40 hover:shadow-premium transition-all group cursor-pointer relative overflow-hidden"
                     >
                         {/* Status bar left decoration */}
                         <div className={cn(
                             "absolute left-0 top-0 bottom-0 w-1",
-                            t.status?.toLowerCase() === 'approved' ? 'bg-status-success' : 
-                            needsApproval(t.status) ? 'bg-primary' : 'bg-status-error'
+                            t.status?.toLowerCase() === 'approved' ? 'bg-status-success' :
+                                needsApproval(t.status) ? 'bg-primary' : 'bg-status-error'
                         )} />
 
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                             <div className="flex items-start gap-5">
                                 <div className={cn(
                                     "w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-soft shrink-0",
-                                    needsApproval(t.status) ? 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white' : 
-                                    t.status?.toLowerCase() === 'failed' ? 'bg-status-error/10 text-status-error' : 'bg-status-success/10 text-status-success'
+                                    needsApproval(t.status) ? 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white' :
+                                        t.status?.toLowerCase() === 'failed' ? 'bg-status-error/10 text-status-error' : 'bg-status-success/10 text-status-success'
                                 )}>
                                     <FileText size={24} />
                                 </div>
@@ -166,19 +166,19 @@ const Transcriptions = () => {
                                         <StatusBadge status={t.status} />
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-2">
-                                    <ActionButton 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        icon={Play} 
-                                        className="h-10 w-10 !p-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors" 
+                                    <ActionButton
+                                        variant="ghost"
+                                        size="sm"
+                                        icon={Play}
+                                        className="h-10 w-10 !p-0 rounded-full hover:bg-primary/10 hover:text-primary transition-colors"
                                     />
-                                    <ActionButton 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        icon={MoreVertical} 
-                                        className="h-10 w-10 !p-0 rounded-full" 
+                                    <ActionButton
+                                        variant="ghost"
+                                        size="sm"
+                                        icon={MoreVertical}
+                                        className="h-10 w-10 !p-0 rounded-full"
                                     />
                                 </div>
                             </div>
@@ -194,24 +194,24 @@ const Transcriptions = () => {
                 title="Transcription Review"
                 footer={
                     <>
-                        <ActionButton 
-                            variant="secondary" 
-                            size="md" 
+                        <ActionButton
+                            variant="secondary"
+                            size="md"
                             onClick={handleCloseDetails}
                             disabled={approveMutation.isPending}
                         >
                             Cancel
                         </ActionButton>
                         {needsApproval(selectedTranscription?.status) && (
-                            <ActionButton 
-                                variant="primary" 
-                                size="md" 
+                            <ActionButton
+                                variant="primary"
+                                size="md"
                                 icon={approveMutation.isPending ? Loader2 : CheckCircle2}
                                 onClick={handleApprove}
                                 disabled={approveMutation.isPending}
                                 className={cn(approveMutation.isPending && "animate-pulse")}
                             >
-                                {approveMutation.isPending ? 'Sending Approval...' : 'Approve Transcription'}
+                                {approveMutation.isPending ? 'Sending Approval...' : 'Start Automation'}
                             </ActionButton>
                         )}
                         {selectedTranscription?.status?.toLowerCase() === 'approved' && (
@@ -233,7 +233,7 @@ const Transcriptions = () => {
                                 </h3>
                                 <StatusBadge status={selectedTranscription.status} />
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-6 pt-2">
                                 <div className="space-y-1">
                                     <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Client Name</span>

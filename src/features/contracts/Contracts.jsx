@@ -10,7 +10,8 @@ import {
   Loader2,
   AlertCircle,
   History,
-  Layers
+  Layers,
+  Code
 } from 'lucide-react';
 import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -23,6 +24,7 @@ import {
   useRegenerateContractMutation,
   useSaveEditedContractMutation
 } from './hooks';
+import { cleanContractHtml } from './utils';
 
 const Contracts = () => {
   const [selectedTranscriptId, setSelectedTranscriptId] = useState(null);
@@ -247,6 +249,7 @@ const ContractDetails = ({ contractId, onBack }) => {
   const saveMutation = useSaveEditedContractMutation();
 
   const [localContent, setLocalContent] = useState(undefined);
+  const [viewMode, setViewMode] = useState('preview'); // 'preview' or 'source'
 
   const currentContent = localContent ?? contract?.content ?? '';
   const hasChanges = localContent !== undefined && localContent !== contract?.content;
@@ -330,23 +333,33 @@ const ContractDetails = ({ contractId, onBack }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Content Editor */}
+        {/* Content Editor / Preview */}
         <div className="lg:col-span-2 space-y-4">
           <SectionCard
             title="CONTRACT CONTENT"
             headerActions={
-              <span className="text-[10px] text-text-muted font-mono">
-                {contract.tokens_used || 0} tokens used
-              </span>
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] text-text-muted font-mono">
+                  {contract.tokens_used || 0} tokens used
+                </span>
+
+              </div>
             }
           >
-            <textarea
-              className="w-full h-[600px] bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed focus:outline-none focus:border-primary/50 transition-colors resize-none font-sans"
-              value={currentContent}
-              onChange={handleContentChange}
-              disabled={isProcessing}
-              placeholder="Contract content will appear here..."
-            />
+            {viewMode === 'preview' ? (
+              <div
+                className="w-full h-[600px] overflow-y-auto bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed custom-scrollbar prose prose-sm prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: cleanContractHtml(currentContent) }}
+              />
+            ) : (
+              <textarea
+                className="w-full h-[600px] bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed focus:outline-none focus:border-primary/50 transition-colors resize-none font-mono"
+                value={currentContent}
+                onChange={handleContentChange}
+                disabled={isProcessing}
+                placeholder="Contract content will appear here..."
+              />
+            )}
           </SectionCard>
         </div>
 
