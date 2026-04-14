@@ -7,8 +7,10 @@ export function cleanTranscriptContent(rawText) {
     
     return rawText
         // Remove strange characters/control characters often found in raw outputs
+        /* eslint-disable-next-line no-control-regex */
         .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, "")
         // Remove the specific zero-width/space characters user mentioned
+        /* eslint-disable-next-line no-misleading-character-class */
         .replace(/[\u200B\u200C\u200D\u200E\u200F\uFEFF]/g, "")
         // Handle repeated newline blocks (keep meaningful breaks but don't overdo it)
         .replace(/\n{3,}/g, '\n\n')
@@ -94,7 +96,7 @@ export function formatTranscriptBlocks(rawTranscript) {
         const match = trimmed.match(blockRegex);
         if (match) {
             blocks.push({
-                timestamp: match[1] ? match[1].replace(/[\[\]]/g, '') : null,
+                timestamp: match[1] ? match[1].replace('[', '').replace(']', '') : null,
                 speaker: match[2] ? match[2].trim() : 'Unknown',
                 text: match[3].trim()
             });

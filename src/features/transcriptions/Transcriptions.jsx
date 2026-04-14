@@ -25,7 +25,7 @@ import {
 import { cn } from '../../lib/utils';
 import { useTranscriptionsQuery, useApproveTranscriptionMutation } from './hooks';
 import ReactMarkdown from 'react-markdown';
-import { cleanTranscriptContent, parseTranscriptSections, formatTranscriptBlocks } from './utils';
+import { cleanTranscriptContent, formatTranscriptBlocks } from './utils';
 
 const Transcriptions = () => {
     const [selectedTranscription, setSelectedTranscription] = useState(null);
@@ -286,13 +286,13 @@ const Transcriptions = () => {
                                 {(() => {
                                     const cleanedContent = cleanTranscriptContent(selectedTranscription.content);
                                     const blocks = formatTranscriptBlocks(cleanedContent);
-                                    
+
                                     return (
                                         <div className="space-y-8 not-prose">
                                             {blocks.map((block, idx) => {
                                                 // Handle sections that were previously in tabs as separators if they appear as blocks
                                                 const isHeader = block.text.match(/^===.*===$/) || block.text.match(/^(Résumé|Détails|Étapes suivantes suggérées|Notes|Transcription)$/i);
-                                                
+
                                                 if (isHeader) {
                                                     return (
                                                         <div key={idx} className="pt-4 pb-2 border-b border-border/50">
