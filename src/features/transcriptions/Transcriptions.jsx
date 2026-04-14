@@ -16,11 +16,16 @@ import {
     RefreshCcw,
     CheckCircle2,
     AlertCircle,
-    Loader2
+    Loader2,
+    MessageSquare,
+    ListTodo,
+    StickyNote,
+    Clock
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTranscriptionsQuery, useApproveTranscriptionMutation } from './hooks';
 import ReactMarkdown from 'react-markdown';
+import { cleanTranscriptContent, parseTranscriptSections, formatTranscriptBlocks } from './utils';
 
 const Transcriptions = () => {
     const [selectedTranscription, setSelectedTranscription] = useState(null);
@@ -266,23 +271,79 @@ const Transcriptions = () => {
                             </div>
                         </div>
 
-                        {/* Content Section */}
+                        {/* Single Unified Content Section */}
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <h4 className="text-sm font-bold text-text-muted uppercase tracking-widest">Transcription Content</h4>
-                                <span className="text-[10px] font-medium px-2 py-0.5 bg-surface-accent rounded border border-border text-text-muted">
-                                    Markdown Supported
-                                </span>
+                                <h4 className="text-sm font-bold text-text-muted uppercase tracking-widest">Transcription Script</h4>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-medium px-2 py-0.5 bg-surface-accent rounded border border-border text-text-muted">
+                                        Auto-Formatted
+                                    </span>
+                                </div>
                             </div>
-                            <div className="prose prose-invert prose-zinc max-w-none bg-background rounded-2xl p-8 border border-border shadow-inner min-h-[400px]">
-                                {selectedTranscription.content ? (
-                                    <ReactMarkdown>{selectedTranscription.content}</ReactMarkdown>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center h-64 text-text-muted opacity-50 space-y-4">
-                                        <FileText size={48} />
-                                        <p className="font-medium italic">No content available for this transcription.</p>
-                                    </div>
-                                )}
+
+                            <div className="prose prose-invert prose-zinc max-w-none bg-background rounded-2xl p-6 md:p-8 border border-border shadow-inner min-h-[600px]">
+                                {(() => {
+                                    const cleanedContent = cleanTranscriptContent(selectedTranscription.content);
+                                    const blocks = formatTranscriptBlocks(cleanedContent);
+                                    
+                                    return (
+                                        <div className="space-y-8 not-prose">
+                                            {blocks.map((block, idx) => {
+                                                // Handle sections that were previously in tabs as separators if they appear as blocks
+                                                const isHeader = block.text.match(/^===.*===$/) || block.text.match(/^(Résumé|Détails|Étapes suivantes suggérées|Notes|Transcription)$/i);
+                                                
+                                                if (isHeader) {
+                                                    return (
+                                                        <div key={idx} className="pt-4 pb-2 border-b border-border/50">
+                                                            <h3 className="text-sm font-black text-primary uppercase tracking-widest flex items-center gap-3">
+                                                                <div className="h-[1px] flex-1 bg-gradient-to-r from-primary/0 to-primary/50" />
+                                                                {block.text.replace(/=/g, '').trim()}
+                                                                <div className="h-[1px] flex-1 bg-gradient-to-l from-primary/0 to-primary/50" />
+                                                            </h3>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <div key={idx} className="group relative">
+                                                        <div className="flex items-start gap-4">
+                                                            <div className="flex-1 space-y-2">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-2">
+                                                                        {block.speaker && (
+                                                                            <span className="text-[11px] font-black uppercase tracking-wider px-2 py-0.5 bg-primary/10 text-primary rounded border border-primary/20">
+                                                                                {block.speaker}
+                                                                            </span>
+                                                                        )}
+                                                                        {block.timestamp && (
+                                                                            <div className="flex items-center gap-1 text-[10px] font-mono text-text-muted bg-surface-accent px-1.5 py-0.5 rounded border border-border">
+                                                                                <Clock size={10} />
+                                                                                {block.timestamp}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-sm text-text-secondary leading-relaxed font-medium whitespace-pre-wrap">
+                                                                    <ReactMarkdown>{block.text}</ReactMarkdown>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {idx < blocks.length - 1 && !isHeader && (
+                                                            <div className="absolute -bottom-4 left-0 right-0 h-[1px] bg-border opacity-30" />
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                            {blocks.length === 0 && (
+                                                <div className="flex flex-col items-center justify-center py-20 text-text-muted opacity-50 space-y-4">
+                                                    <FileText size={48} />
+                                                    <p className="font-medium italic">No content available.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
                     </div>
