@@ -246,24 +246,19 @@ const ContractDetails = ({ contractId, onBack }) => {
   const regenerateMutation = useRegenerateContractMutation();
   const saveMutation = useSaveEditedContractMutation();
 
-  const [editableContent, setEditableContent] = useState('');
-  const [hasChanges, setHasChanges] = useState(false);
+  const [localContent, setLocalContent] = useState(undefined);
 
-  useEffect(() => {
-    if (contract?.content) {
-      setEditableContent(contract.content);
-    }
-  }, [contract]);
+  const currentContent = localContent ?? contract?.content ?? '';
+  const hasChanges = localContent !== undefined && localContent !== contract?.content;
 
   const handleContentChange = (e) => {
-    setEditableContent(e.target.value);
-    setHasChanges(e.target.value !== contract?.content);
+    setLocalContent(e.target.value);
   };
 
   const handleSave = () => {
-    saveMutation.mutate({ contract, content: editableContent }, {
+    saveMutation.mutate({ contract, content: currentContent }, {
       onSuccess: () => {
-        setHasChanges(false);
+        setLocalContent(undefined);
         onBack(); // Go back to versions list
       }
     });
@@ -347,7 +342,7 @@ const ContractDetails = ({ contractId, onBack }) => {
           >
             <textarea
               className="w-full h-[600px] bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed focus:outline-none focus:border-primary/50 transition-colors resize-none font-sans"
-              value={editableContent}
+              value={currentContent}
               onChange={handleContentChange}
               disabled={isProcessing}
               placeholder="Contract content will appear here..."
