@@ -254,9 +254,7 @@ const ContractDetails = ({ contractId, onBack }) => {
   const currentContent = localContent ?? contract?.content ?? '';
   const hasChanges = localContent !== undefined && localContent !== contract?.content;
 
-  const handleContentChange = (e) => {
-    setLocalContent(e.target.value);
-  };
+
 
   const handleSave = () => {
     saveMutation.mutate({ contract, content: currentContent }, {
@@ -346,10 +344,10 @@ const ContractDetails = ({ contractId, onBack }) => {
               </div>
             }
           >
-              <div
-                className="w-full h-[600px] overflow-y-auto bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed custom-scrollbar prose prose-sm prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: cleanContractHtml(currentContent) }}
-              />
+            <div
+              className="w-full h-[600px] overflow-y-auto bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed custom-scrollbar prose prose-sm prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: cleanContractHtml(currentContent) }}
+            />
           </SectionCard>
         </div>
 
