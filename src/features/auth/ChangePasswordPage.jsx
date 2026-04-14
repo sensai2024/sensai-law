@@ -3,14 +3,13 @@ import { useChangePasswordMutation } from './authHooks';
 import SectionCard from '../../components/ui/SectionCard';
 import ActionButton from '../../components/ui/ActionButton';
 import { Lock, ShieldCheck, Key } from 'lucide-react';
-import { cn } from '../../lib/utils';
 
 const ChangePasswordPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   const changePasswordMutation = useChangePasswordMutation();
 
   const handleSubmit = async (e) => {
@@ -27,7 +26,7 @@ const ChangePasswordPage = () => {
       setError('Security key must be at least 6 characters.');
       return;
     }
-    
+
     changePasswordMutation.mutate(password, {
       onSuccess: () => {
         setSuccess('Security credentials updated successfully.');
@@ -50,19 +49,19 @@ const ChangePasswordPage = () => {
         </div>
       </div>
 
-      <SectionCard 
-        title="Key Management" 
+      <SectionCard
+        title="Key Management"
         className="shadow-premium"
         headerActions={<ShieldCheck size={18} className="text-primary" />}
       >
         <div className="flex items-start gap-4 mb-8 p-4 bg-surface-highlight/50 rounded-xl border border-border/50">
           <div className="p-2 bg-primary/10 text-primary rounded-lg">
-             <Lock size={20} />
+            <Lock size={20} />
           </div>
           <div>
             <h4 className="text-sm font-bold text-text-primary">Update Security Credentials</h4>
             <p className="text-xs text-text-muted mt-1 leading-relaxed">
-              Your security key is the primary identifier for administrative actions. 
+              Your security key is the primary identifier for administrative actions.
               Ensure your new key follows the Altata Légal complexity standard.
             </p>
           </div>
@@ -74,7 +73,7 @@ const ChangePasswordPage = () => {
               [CRITICAL ERROR]: {error}
             </div>
           )}
-          
+
           {success && (
             <div className="bg-status-success/10 border border-status-success/30 text-status-success p-3 rounded-xl text-xs font-bold animate-in fade-in zoom-in-95">
               [PROTOCOL SUCCESS]: {success}
@@ -87,8 +86,8 @@ const ChangePasswordPage = () => {
                 New Security Key
               </label>
               <div className="relative group/input">
-                 <Key className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={16} />
-                 <input
+                <Key className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={16} />
+                <input
                   type="password"
                   required
                   placeholder="••••••••"
@@ -98,14 +97,14 @@ const ChangePasswordPage = () => {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1">
                 Confirm Verification Key
               </label>
               <div className="relative group/input">
-                 <Lock className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={16} />
-                 <input
+                <Lock className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={16} />
+                <input
                   type="password"
                   required
                   placeholder="••••••••"
@@ -130,9 +129,9 @@ const ChangePasswordPage = () => {
       </SectionCard>
 
       <div className="p-6 bg-surface-accent/20 rounded-2xl border border-dashed border-border/50 flex items-center justify-center">
-         <p className="text-[10px] text-text-muted font-medium tracking-widest uppercase italic">
-            Session identification remaining active during credential transition.
-         </p>
+        <p className="text-[10px] text-text-muted font-medium tracking-widest uppercase italic">
+          Session identification remaining active during credential transition.
+        </p>
       </div>
     </div>
   );

@@ -39,28 +39,28 @@ export const AuthProvider = ({ children }) => {
 
   const isAdmin = profile?.role === 'admin';
 
-  // Enhanced Debugging Lifecycle Logs
-  useEffect(() => {
-    if (isLoadingSession) {
+  // // Enhanced Debugging Lifecycle Logs
+  // useEffect(() => {
+  //   if (isLoadingSession) {
 
-      return;
-    }
+  //     return;
+  //   }
 
-    if (!session) {
+  //   if (!session) {
 
-      return;
-    }
+  //     return;
+  //   }
 
 
 
-    if (isLoadingProfile) {
+  //   if (isLoadingProfile) {
 
-    } else if (profile) {
+  //   } else if (profile) {
 
-    } else {
+  //   } else {
 
-    }
-  }, [session, profile, isAdmin, isLoadingSession, isLoadingProfile]);
+  //   }
+  // }, [session, profile, isAdmin, isLoadingSession, isLoadingProfile]);
 
   const value = {
     session,
