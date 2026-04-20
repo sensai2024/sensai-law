@@ -76,8 +76,9 @@ const SidebarNav = ({ isOpen, onClose }) => {
         <div className="px-6 py-10 flex items-start justify-between flex-shrink-0">
           <div>
             <h1 className="text-xl font-bold text-primary tracking-tight">Altata Légal</h1>
-            <p className="text-[10px] font-bold tracking-[0.2em] text-text-muted mt-1 uppercase">
-              Automation Hub
+
+            <p className="text-[8px] font-bold tracking-[0.2em] text-text-muted mt-1 uppercase">
+              Powered by SensAI
             </p>
           </div>
 
@@ -126,8 +127,8 @@ const SidebarNav = ({ isOpen, onClose }) => {
                   <span className={cn(
                     'flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full text-[10px] font-bold',
                     isLoading ? 'bg-surface-elevated animate-pulse text-transparent' :
-                    item.label === 'Errors' && item.counter > 0 ? 'bg-status-error text-white' :
-                    'bg-primary/20 text-primary'
+                      item.label === 'Errors' && item.counter > 0 ? 'bg-status-error text-white' :
+                        'bg-primary/20 text-primary'
                   )}>
                     {isLoading ? '0' : item.counter}
                   </span>
@@ -143,10 +144,7 @@ const SidebarNav = ({ isOpen, onClose }) => {
             <div className="w-2 h-2 rounded-full bg-status-success animate-pulse" />
             <span className="text-[10px] font-bold text-text-secondary uppercase">n8n connected</span>
           </div>
-          <div className="flex items-center gap-2 text-text-muted">
-            <History size={12} />
-            <span className="text-[9px] font-medium">Last sync: 2 mins ago</span>
-          </div>
+
         </div>
       </aside>
     </>
