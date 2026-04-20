@@ -5,31 +5,162 @@ import StatusBadge from '../../components/ui/StatusBadge';
 import ActionButton from '../../components/ui/ActionButton';
 import StatCard from '../../components/ui/StatCard';
 import SlidePanel from '../../components/ui/SlidePanel';
-import { 
-  Mail, 
-  Building2, 
-  Check, 
+import {
+  Mail,
+  Building2,
+  Check,
   XCircle,
-  History, 
-  ChevronRight, 
-  Edit3, 
-  Save, 
+  History,
+  ChevronRight,
+  Edit3,
+  Save,
   CloudUpload,
   User,
   Clock
 } from 'lucide-react';
 
-import { 
-  useCrmApprovalsGroupedQuery, 
-  useCrmApprovalVersionsQuery, 
+import {
+  useCrmApprovalsGroupedQuery,
+  useCrmApprovalVersionsQuery,
   useCrmDecisionMutation,
-  useSaveEditedCrmApprovalMutation 
+  useSaveEditedCrmApprovalMutation
 } from './hooks';
 
 
 import { useAuth } from '../auth/AuthContext';
 // import { format } from 'date-fns'; // Removed missing dependency
 
+const JsonDataViewer = ({ data }) => {
+  let parsed = data;
+  if (typeof data === 'string') {
+    try {
+      parsed = JSON.parse(data);
+    } catch(e) {
+      return <span className="text-text-primary whitespace-pre-wrap">{data}</span>;
+    }
+  }
+
+  if (parsed === null) return <span className="text-text-muted italic">null</span>;
+  if (parsed === undefined) return null;
+  
+  if (typeof parsed !== 'object') {
+    if (typeof parsed === 'boolean') {
+      return <span className={parsed ? "text-primary font-bold" : "text-text-muted"}>{parsed ? 'Yes' : 'No'}</span>;
+    }
+    if (typeof parsed === 'string') {
+      if (parsed.startsWith('http')) {
+        return <a href={parsed} target="_blank" rel="noreferrer" className="text-primary hover:underline break-all">{parsed}</a>;
+      }
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parsed)) {
+        return <a href={`mailto:${parsed}`} className="text-primary hover:underline break-all">{parsed}</a>;
+      }
+    }
+    return <span className="text-text-primary whitespace-pre-wrap break-words">{String(parsed)}</span>;
+  }
+
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) return <span className="text-text-muted italic">Empty catalog</span>;
+    return (
+      <div className="space-y-2">
+        {parsed.map((item, idx) => (
+          <div key={idx} className="bg-surface-elevated/30 rounded border border-border/20 p-3">
+            <JsonDataViewer data={item} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const entries = Object.entries(parsed);
+  if (entries.length === 0) return <span className="text-text-muted italic">Empty</span>;
+
+  return (
+    <table className="w-full text-left border-collapse">
+      <tbody className="divide-y divide-border/20">
+        {entries.map(([key, value]) => (
+          <tr key={key} className="hover:bg-primary/5 transition-colors group">
+            <td className="py-2.5 px-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-1/3 align-top bg-surface-accent/5 border-r border-border/20 group-hover:bg-primary/10 transition-colors">
+              {key.replace(/_/g, ' ')}
+            </td>
+            <td className="py-2.5 px-3 text-sm font-medium text-text-primary align-top break-words">
+              <JsonDataViewer data={value} />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+const EditableJsonViewer = ({ data, onChange }) => {
+  if (data === null) return <span className="text-text-muted italic text-xs">null</span>;
+  if (data === undefined) return null;
+
+  if (typeof data !== 'object') {
+    if (typeof data === 'boolean') {
+      return (
+        <select 
+          value={data ? 'true' : 'false'} 
+          onChange={e => onChange(e.target.value === 'true')}
+          className="bg-surface-elevated/50 border border-border/50 rounded px-2 py-1 text-xs text-primary outline-none focus:border-primary"
+        >
+          <option value="true">Yes</option>
+          <option value="false">No</option>
+        </select>
+      );
+    }
+    return (
+      <input 
+        type={typeof data === 'number' ? 'number' : 'text'}
+        value={data}
+        onChange={e => onChange(typeof data === 'number' ? Number(e.target.value) : e.target.value)}
+        className="w-full bg-surface border border-border/50 rounded px-2 py-1.5 text-xs text-text-primary outline-none focus:border-primary transition-colors"
+      />
+    );
+  }
+
+  if (Array.isArray(data)) {
+    return (
+      <div className="space-y-2">
+        {data.map((item, idx) => (
+          <div key={idx} className="bg-surface-elevated/20 rounded border border-border/20 p-2">
+            <EditableJsonViewer 
+              data={item} 
+              onChange={(newVal) => {
+                const newData = [...data];
+                newData[idx] = newVal;
+                onChange(newData);
+              }} 
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const entries = Object.entries(data);
+  return (
+    <table className="w-full text-left border-collapse bg-surface/50 rounded-lg overflow-hidden">
+      <tbody className="divide-y divide-border/20">
+        {entries.map(([key, value]) => (
+          <tr key={key} className="group">
+            <td className="py-2 px-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-1/3 align-middle bg-surface-accent/5 border-r border-border/20">
+              {key.replace(/_/g, ' ')}
+            </td>
+            <td className="py-1.5 px-2 align-middle">
+              <EditableJsonViewer 
+                data={value} 
+                onChange={(newVal) => {
+                  onChange({ ...data, [key]: newVal });
+                }} 
+              />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
 
 const CrmApprovals = () => {
   const [selectedTranscriptId, setSelectedTranscriptId] = useState(null);
@@ -42,7 +173,7 @@ const CrmApprovals = () => {
 
   const { data, isLoading, isError } = useCrmApprovalsGroupedQuery();
   const versionsQuery = useCrmApprovalVersionsQuery(selectedTranscriptId);
-  
+
   const decisionMutation = useCrmDecisionMutation();
   const saveMutation = useSaveEditedCrmApprovalMutation();
 
@@ -51,7 +182,7 @@ const CrmApprovals = () => {
     if (!dateString) return '';
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return 'Invalid Date';
-    
+
     // Simplistic native version of MMM d, HH:mm
     return date.toLocaleString('en-US', {
       month: 'short',
@@ -90,36 +221,30 @@ const CrmApprovals = () => {
   };
 
   const handleStartEdit = () => {
+    let parsedExtracted = selectedVersion.extracted_data;
+    if (typeof parsedExtracted === 'string') {
+      try { parsedExtracted = JSON.parse(parsedExtracted); } catch(e) {}
+    }
+
     setEditedData({
       client_name: selectedVersion.client_name,
       client_email: selectedVersion.client_email,
       company_name: selectedVersion.company_name,
-      extracted_data: JSON.stringify(selectedVersion.extracted_data, null, 2)
+      extracted_data: parsedExtracted
     });
     setIsEditMode(true);
   };
 
   const handleSaveEdit = async () => {
     try {
-      let parsedJson = selectedVersion.extracted_data;
-      try {
-        parsedJson = JSON.parse(editedData.extracted_data);
-      } catch (e) {
-        console.error("JSON parse error", e);
-        // Fallback or alert user
-      }
-
       await saveMutation.mutateAsync({
         crmApproval: selectedVersion,
         updatedData: {
           ...editedData,
-          extracted_data: parsedJson
+          extracted_data: editedData.extracted_data
         }
       });
       setIsEditMode(false);
-      // The mutation onSuccess will invalidate queries, 
-      // but we might want to select the new version.
-      // For now, let it refresh.
     } catch (err) {
       console.error("Save failed", err);
     }
@@ -147,7 +272,7 @@ const CrmApprovals = () => {
   };
 
   const handleApprove = (e) => { e.preventDefault(); handleDecision('approved'); };
-  const handleReject  = (e) => { e.preventDefault(); handleDecision('rejected'); };
+  const handleReject = (e) => { e.preventDefault(); handleDecision('rejected'); };
 
 
   if (isLoading) {
@@ -176,7 +301,7 @@ const CrmApprovals = () => {
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {kpis.map((kpi, idx) => (
-          <StatCard 
+          <StatCard
             key={idx}
             label={kpi.label}
             value={kpi.value}
@@ -195,8 +320,8 @@ const CrmApprovals = () => {
         </div>
 
         {groupedEntries.map((group) => (
-          <div 
-            key={group.transcript_id} 
+          <div
+            key={group.transcript_id}
             onClick={() => handleOpenThread(group.transcript_id)}
             className="bg-surface rounded-xl border border-border p-5 shadow-premium hover:border-primary/40 transition-all duration-300 group cursor-pointer"
           >
@@ -330,7 +455,7 @@ const CrmApprovals = () => {
               <History size={16} className="text-primary" />
               <h4 className="text-xs font-bold text-text-muted uppercase tracking-widest">Version History</h4>
             </div>
-            
+
             <div className="space-y-3">
               {versionsQuery.isLoading ? (
                 <div className="text-xs text-text-muted flex items-center gap-2">
@@ -339,14 +464,13 @@ const CrmApprovals = () => {
                 </div>
               ) : (
                 versionsQuery.data?.map((v, idx) => (
-                  <div 
+                  <div
                     key={v.id}
                     onClick={() => handleSelectVersion(v)}
-                    className={`p-3 rounded-lg border transition-all cursor-pointer ${
-                      selectedVersion?.id === v.id 
-                        ? 'bg-primary/5 border-primary shadow-premium' 
+                    className={`p-3 rounded-lg border transition-all cursor-pointer ${selectedVersion?.id === v.id
+                        ? 'bg-primary/5 border-primary shadow-premium'
                         : 'bg-surface-elevated/30 border-border hover:border-text-muted'
-                    }`}
+                      }`}
                   >
                     <div className="flex justify-between items-start mb-1">
                       <span className="text-[10px] font-bold text-text-muted uppercase tracking-tighter">
@@ -377,10 +501,10 @@ const CrmApprovals = () => {
                     <div>
                       <h3 className="text-xl font-bold text-text-primary">{selectedVersion.client_name}</h3>
                       <div className="flex items-center gap-3 text-sm text-text-secondary mt-1">
-                         <span className="flex items-center gap-1.5">
-                           <Mail size={14} className="text-text-muted" />
-                           {selectedVersion.client_email}
-                         </span>
+                        <span className="flex items-center gap-1.5">
+                          <Mail size={14} className="text-text-muted" />
+                          {selectedVersion.client_email}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -399,65 +523,65 @@ const CrmApprovals = () => {
                 </div>
 
                 <div className="grid grid-cols-2 gap-6 pt-2">
-                   <div className="space-y-2">
-                     <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Client Name</label>
-                     {isEditMode ? (
-                       <input 
-                         type="text" 
-                         value={editedData.client_name}
-                         onChange={(e) => setEditedData({...editedData, client_name: e.target.value})}
-                         className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
-                       />
-                     ) : (
-                       <p className="text-sm font-medium text-text-primary py-2">{selectedVersion.client_name}</p>
-                     )}
-                   </div>
-                   <div className="space-y-2">
-                     <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Client Email</label>
-                     {isEditMode ? (
-                       <input 
-                         type="email" 
-                         value={editedData.client_email}
-                         onChange={(e) => setEditedData({...editedData, client_email: e.target.value})}
-                         className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
-                       />
-                     ) : (
-                       <p className="text-sm font-medium text-text-primary py-2">{selectedVersion.client_email}</p>
-                     )}
-                   </div>
-                   <div className="space-y-2 col-span-2">
-                     <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Company Name</label>
-                     {isEditMode ? (
-                       <input 
-                         type="text" 
-                         value={editedData.company_name}
-                         onChange={(e) => setEditedData({...editedData, company_name: e.target.value})}
-                         className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
-                       />
-                     ) : (
-                       <p className="text-sm font-medium text-text-primary py-2 flex items-center gap-2">
-                         <Building2 size={16} className="text-primary" />
-                         {selectedVersion.company_name}
-                       </p>
-                     )}
-                   </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Client Name</label>
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={editedData.client_name}
+                        onChange={(e) => setEditedData({ ...editedData, client_name: e.target.value })}
+                        className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium text-text-primary py-2">{selectedVersion.client_name}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Client Email</label>
+                    {isEditMode ? (
+                      <input
+                        type="email"
+                        value={editedData.client_email}
+                        onChange={(e) => setEditedData({ ...editedData, client_email: e.target.value })}
+                        className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium text-text-primary py-2">{selectedVersion.client_email}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2 col-span-2">
+                    <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Company Name</label>
+                    {isEditMode ? (
+                      <input
+                        type="text"
+                        value={editedData.company_name}
+                        onChange={(e) => setEditedData({ ...editedData, company_name: e.target.value })}
+                        className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium text-text-primary py-2 flex items-center gap-2">
+                        <Building2 size={16} className="text-primary" />
+                        {selectedVersion.company_name}
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex-1 space-y-2 mt-4 flex flex-col min-h-0">
                   <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase flex items-center justify-between">
-                    Extracted JSON Data
-                    {isEditMode && <span className="lowercase text-[9px] font-medium opacity-70">(Valid JSON required)</span>}
+                    Extracted Data
                   </label>
-                  <div className="flex-1 bg-surface-dark/50 border border-border rounded-xl p-4 overflow-hidden flex flex-col font-mono text-xs">
+                  <div className={`flex-1 border border-border rounded-xl overflow-hidden flex flex-col bg-surface-elevated/20`}>
                     {isEditMode ? (
-                      <textarea
-                        value={editedData.extracted_data}
-                        onChange={(e) => setEditedData({...editedData, extracted_data: e.target.value})}
-                        className="w-full h-full bg-transparent outline-none resize-none text-primary scrollbar-thin"
-                      />
+                      <div className="w-full h-full overflow-y-auto scrollbar-thin p-1">
+                        <EditableJsonViewer 
+                          data={editedData.extracted_data}
+                          onChange={(newVal) => setEditedData({ ...editedData, extracted_data: newVal })}
+                        />
+                      </div>
                     ) : (
-                      <div className="w-full h-full overflow-y-auto pr-2 scrollbar-thin text-text-secondary whitespace-pre opacity-80">
-                        {JSON.stringify(selectedVersion.extracted_data, null, 2)}
+                      <div className="w-full h-full overflow-y-auto scrollbar-thin">
+                        <JsonDataViewer data={selectedVersion.extracted_data} />
                       </div>
                     )}
                   </div>
@@ -465,11 +589,11 @@ const CrmApprovals = () => {
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-text-muted space-y-4">
-                 <div className="animate-pulse flex flex-col items-center">
-                   <div className="w-16 h-16 rounded-full bg-border/20 mb-4" />
-                   <div className="h-4 w-32 bg-border/20 rounded mb-2" />
-                   <div className="h-3 w-48 bg-border/10 rounded" />
-                 </div>
+                <div className="animate-pulse flex flex-col items-center">
+                  <div className="w-16 h-16 rounded-full bg-border/20 mb-4" />
+                  <div className="h-4 w-32 bg-border/20 rounded mb-2" />
+                  <div className="h-3 w-48 bg-border/10 rounded" />
+                </div>
               </div>
             )}
           </div>

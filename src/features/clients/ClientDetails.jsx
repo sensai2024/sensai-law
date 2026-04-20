@@ -11,7 +11,7 @@ export default function ClientDetails() {
   const { clientId } = useParams();
   const navigate = useNavigate();
   const email = decodeURIComponent(clientId);
-  
+
   const { data: client, isLoading, isError } = useClientDetailsQuery(email);
 
   if (isLoading) {
@@ -41,7 +41,7 @@ export default function ClientDetails() {
   return (
     <div className="space-y-8">
       <div>
-        <button 
+        <button
           onClick={() => navigate('/clients')}
           className="flex items-center text-sm text-zinc-400 hover:text-zinc-100 transition-colors mb-6 group"
         >
@@ -53,14 +53,13 @@ export default function ClientDetails() {
             <h1 className="text-3xl font-bold text-zinc-100">{client.name}</h1>
             <p className="text-zinc-400 mt-1">{client.email}</p>
           </div>
-          <ActionButton variant="outline">Edit Profile</ActionButton>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard title="Total Contracts" value={client.metrics.contracts} icon={FileText} trendType="neutral" />
-        <StatCard title="CRM Approvals" value={client.metrics.approvals} icon={CheckSquare} trendType="success" />
-        <StatCard title="Transcripts" value={client.metrics.transcripts} icon={Activity} trendType="neutral" />
+        <StatCard label="Total Contracts" value={client.metrics.contracts} icon={FileText} trendType="neutral" />
+        <StatCard label="CRM Approvals" value={client.metrics.approvals} icon={CheckSquare} trendType="success" />
+        <StatCard label="Transcripts" value={client.metrics.transcripts} icon={Activity} trendType="neutral" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -69,7 +68,7 @@ export default function ClientDetails() {
             <ul className="space-y-3">
               {client.contracts.map(c => (
                 <li key={c.id} className="p-3 bg-zinc-900/50 rounded flex justify-between">
-                  <span className="text-zinc-300 truncate mr-2">{c.title || `Contract #${c.id.substring(0,6)}`}</span>
+                  <span className="text-zinc-300 truncate mr-2">{c.title || `Contract #${c.id.substring(0, 6)}`}</span>
                   <span className="text-xs text-zinc-500 uppercase">{c.status}</span>
                 </li>
               ))}
@@ -84,7 +83,7 @@ export default function ClientDetails() {
             <ul className="space-y-3">
               {client.approvals.map(a => (
                 <li key={a.id} className="p-3 bg-zinc-900/50 rounded flex justify-between">
-                  <span className="text-zinc-300">Approval #{a.id.substring(0,8)}</span>
+                  <span className="text-zinc-300">Approval #{a.id.substring(0, 8)}</span>
                   <span className="text-xs text-brand-primary">{a.status}</span>
                 </li>
               ))}

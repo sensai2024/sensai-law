@@ -345,7 +345,10 @@ const ContractDetails = ({ contractId, onBack }) => {
             }
           >
             <div
-              className="w-full h-[600px] overflow-y-auto bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed custom-scrollbar prose prose-sm prose-invert max-w-none"
+              className="w-full h-[600px] overflow-y-auto bg-surface-accent/30 border border-border rounded-lg p-6 text-sm text-text-secondary leading-relaxed custom-scrollbar prose prose-sm prose-invert max-w-none focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-200"
+              contentEditable={true}
+              suppressContentEditableWarning={true}
+              onBlur={(e) => setLocalContent(e.target.innerHTML)}
               dangerouslySetInnerHTML={{ __html: cleanContractHtml(currentContent) }}
             />
           </SectionCard>
