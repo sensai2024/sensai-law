@@ -35,7 +35,7 @@ const JsonDataViewer = ({ data }) => {
   if (typeof data === 'string') {
     try {
       parsed = JSON.parse(data);
-    } catch(e) {
+    } catch (_) {
       return <span className="text-text-primary whitespace-pre-wrap">{data}</span>;
     }
   }
@@ -223,7 +223,7 @@ const CrmApprovals = () => {
   const handleStartEdit = () => {
     let parsedExtracted = selectedVersion.extracted_data;
     if (typeof parsedExtracted === 'string') {
-      try { parsedExtracted = JSON.parse(parsedExtracted); } catch(e) {}
+      try { parsedExtracted = JSON.parse(parsedExtracted); } catch (_) { /* ignore parse error */ }
     }
 
     setEditedData({
