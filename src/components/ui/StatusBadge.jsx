@@ -22,7 +22,7 @@ const StatusBadge = ({ status, className }) => {
     if (s === 'employee') {
       return 'bg-secondary/10 text-secondary border-secondary/20';
     }
-    return 'bg-surface-accent text-text-secondary border-border';
+    return 'bg-[var(--surface)] text-[var(--text-muted)] border-[var(--border)]';
   };
 
   return (

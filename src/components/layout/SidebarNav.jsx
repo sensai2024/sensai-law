@@ -15,6 +15,7 @@ import {
 import { cn } from '../../lib/utils';
 import { useSidebarCountsQuery } from './hooks';
 import { useAuth } from '../../features/auth/AuthContext';
+import ThemeToggle from './ThemeToggle';
 
 const SidebarNav = ({ isOpen, onClose }) => {
   const { data: counts, isLoading } = useSidebarCountsQuery();
@@ -65,7 +66,7 @@ const SidebarNav = ({ isOpen, onClose }) => {
         className={cn(
           // Base layout
           'fixed inset-y-0 left-0 z-40 flex flex-col',
-          'w-64 bg-surface border-r border-border',
+          'w-64 bg-[var(--surface)] border-r border-[var(--border)]',
           // Mobile: slide in/out
           'transition-transform duration-300 ease-in-out',
           'lg:relative lg:translate-x-0 lg:z-auto lg:flex-shrink-0',
@@ -77,7 +78,7 @@ const SidebarNav = ({ isOpen, onClose }) => {
           <div>
             <h1 className="text-xl font-bold text-primary tracking-tight">Altata Légal</h1>
 
-            <p className="text-[8px] font-bold tracking-[0.2em] text-text-muted mt-1 uppercase">
+            <p className="text-[8px] font-bold tracking-[0.2em] text-[var(--text-muted)] mt-1 uppercase">
               Powered by SensAI
             </p>
           </div>
@@ -85,7 +86,7 @@ const SidebarNav = ({ isOpen, onClose }) => {
           {/* Close button — mobile only */}
           <button
             onClick={onClose}
-            className="lg:hidden p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-highlight transition-colors"
+            className="lg:hidden p-1.5 rounded-md text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)] transition-colors"
             aria-label="Close sidebar"
           >
             <X size={18} />
@@ -99,7 +100,7 @@ const SidebarNav = ({ isOpen, onClose }) => {
               return (
                 <p
                   key={index}
-                  className="px-2 pt-6 pb-2 text-[10px] font-bold tracking-widest text-text-muted uppercase"
+                  className="px-2 pt-6 pb-2 text-[10px] font-bold tracking-widest text-[var(--text-muted)] uppercase"
                 >
                   {item.label}
                 </p>
@@ -116,7 +117,7 @@ const SidebarNav = ({ isOpen, onClose }) => {
                   'group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
                   isActive
                     ? 'bg-primary/10 text-primary shadow-gold-glow'
-                    : 'text-text-secondary hover:bg-surface-highlight hover:text-text-primary'
+                    : 'text-[var(--text-muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]'
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -126,7 +127,7 @@ const SidebarNav = ({ isOpen, onClose }) => {
                 {item.showBadge && (
                   <span className={cn(
                     'flex h-5 min-w-[20px] px-1.5 items-center justify-center rounded-full text-[10px] font-bold',
-                    isLoading ? 'bg-surface-elevated animate-pulse text-transparent' :
+                    isLoading ? 'bg-[var(--surface)] animate-pulse text-transparent' :
                       item.label === 'Errors' && item.counter > 0 ? 'bg-status-error text-white' :
                         'bg-primary/20 text-primary'
                   )}>
@@ -139,12 +140,13 @@ const SidebarNav = ({ isOpen, onClose }) => {
         </nav>
 
         {/* Footer — always pinned at bottom */}
-        <div className="p-6 border-t border-border flex-shrink-0 bg-surface-highlight/30">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="p-4 border-t border-[var(--border)] flex-shrink-0 bg-[var(--surface)]/30 space-y-4">
+          <ThemeToggle />
+          
+          <div className="flex items-center gap-2 px-2">
             <div className="w-2 h-2 rounded-full bg-status-success animate-pulse" />
-            <span className="text-[10px] font-bold text-text-secondary uppercase">n8n connected</span>
+            <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">n8n connected</span>
           </div>
-
         </div>
       </aside>
     </>

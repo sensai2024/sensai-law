@@ -40,7 +40,7 @@ const AppLayout = () => {
     };
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden">
+        <div className="flex h-screen bg-[var(--bg)] text-[var(--text)] overflow-hidden">
             {/* Sidebar — always rendered; mobile open state drives visibility */}
             <SidebarNav
                 isOpen={sidebarOpen}
@@ -50,25 +50,25 @@ const AppLayout = () => {
             {/* Main Content */}
             <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 {/* Header */}
-                <header className="h-20 px-6 lg:px-10 flex items-center justify-between border-b border-border bg-background/50 backdrop-blur-md sticky top-0 z-20">
+                <header className="h-20 px-6 lg:px-10 flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg)]/50 backdrop-blur-md sticky top-0 z-20">
                     <div className="flex items-center gap-4">
                         {/* Mobile hamburger — hidden on desktop */}
                         <button
                             onClick={() => setSidebarOpen(true)}
-                            className="lg:hidden p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-highlight transition-colors"
+                            className="lg:hidden p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)] transition-colors"
                             aria-label="Open navigation"
                             id="sidebar-toggle"
                         >
                             <Menu size={20} />
                         </button>
 
-                        <h2 className="text-xl lg:text-2xl font-bold text-text-primary tracking-tight">
+                        <h2 className="text-xl lg:text-2xl font-bold text-[var(--text)] tracking-tight">
                             {getPageTitle(location.pathname)}
                         </h2>
                     </div>
 
                     <div className="flex items-center gap-4 lg:gap-6">
-                        <div className="flex items-center gap-3 pr-4 lg:pr-6 border-r border-border">
+                        <div className="flex items-center gap-3 pr-4 lg:pr-6 border-r border-[var(--border)]">
                             <ActionButton
                                 variant="secondary"
                                 size="md"
@@ -81,16 +81,16 @@ const AppLayout = () => {
 
                         <div className="flex items-center gap-3 lg:gap-4">
                             <div className="hidden sm:flex flex-col items-end">
-                                <span className="text-sm font-bold text-text-primary">{profile?.full_name || 'User'}</span>
+                                <span className="text-sm font-bold text-[var(--text)]">{profile?.full_name || 'User'}</span>
                                 <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{profile?.role || 'Guest'}</span>
                             </div>
-                            <div className="w-10 h-10 rounded-full bg-surface-elevated border border-border flex items-center justify-center text-primary shadow-gold-glow">
+                            <div className="w-10 h-10 rounded-full bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-primary shadow-gold-glow">
                                 <User size={20} />
                             </div>
                             <button
                                 onClick={handleLogout}
                                 disabled={logoutMutation.isPending}
-                                className="p-2 text-text-muted hover:text-status-error transition-colors"
+                                className="p-2 text-[var(--text-muted)] hover:text-status-error transition-colors"
                                 title="Log out"
                             >
                                 <LogOut size={20} />

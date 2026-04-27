@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 import typography from '@tailwindcss/typography';
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,40 +9,41 @@ export default {
   theme: {
     extend: {
       colors: {
-        // LegalTech Premium SaaS Palette
-        background: '#09090b', // Deep Charcoal
+        // User Defined Theme Tokens
+        bg: 'var(--bg)',
         surface: {
-          DEFAULT: '#121214',  // Slightly lighter charcoal
-          highlight: '#1c1c1f', // Elevation surface
-          accent: '#27272a',    // Border/Action surface
+          DEFAULT: 'var(--surface)',
+          elevated: 'var(--surface-elevated)',
         },
+        text: {
+          DEFAULT: 'var(--text)',
+          muted: 'var(--text-muted)',
+        },
+        border: 'var(--border)',
+        
+        // Brand & Status (using variables defined in index.css)
         primary: {
-          DEFAULT: '#cfb53b',   // Gold
-          hover: '#eab308',     // Amber
-          muted: '#85732a',     // Darkened gold
+          DEFAULT: 'var(--primary)',
+          hover: 'var(--primary-hover)',
+          muted: 'var(--primary-muted)',
         },
         secondary: {
-          DEFAULT: '#3b82f6',   // Secondary Blue
-          hover: '#2563eb',
-        },
-        border: '#27272a',      // Subtle dark border
-        text: {
-          primary: '#f4f4f5',   // Off-white
-          secondary: '#a1a1aa', // Muted silver
-          muted: '#71717a',    // Dim gray
+          DEFAULT: 'var(--secondary)',
+          hover: 'var(--secondary-hover)',
         },
         status: {
-          success: '#10b981',   // Emerald
-          error: '#ef4444',     // Red
-          warning: '#f59e0b',   // Amber
-          processing: '#3b82f6', // Blue
+          success: 'var(--success)',
+          error: 'var(--error)',
+          warning: 'var(--warning)',
+          processing: 'var(--processing)',
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        'premium': '0 4px 20px -5px rgba(0, 0, 0, 0.7)',
+        'premium': '0 4px 20px -5px var(--shadow-premium)',
+        'soft': '0 2px 10px -2px var(--shadow-soft)',
         'gold-glow': '0 0 15px -3px rgba(207, 181, 59, 0.3)',
       }
     },

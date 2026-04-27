@@ -13,10 +13,10 @@ export default function ClientsList() {
   if (isLoading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-8 w-48 bg-surface-elevated rounded"></div>
+        <div className="h-8 w-48 bg-[var(--surface)] rounded"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-40 bg-surface-elevated rounded-xl"></div>
+            <div key={i} className="h-40 bg-[var(--surface)] rounded-xl"></div>
           ))}
         </div>
       </div>
@@ -33,10 +33,10 @@ export default function ClientsList() {
 
   if (!clients || clients.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-zinc-800 rounded-xl">
-        <Users className="w-12 h-12 text-zinc-600 mb-4" />
-        <h3 className="text-lg font-medium text-zinc-300">No clients found</h3>
-        <p className="text-zinc-500 mt-2">Data will appear once there are contracts or approvals for clients.</p>
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-[var(--border)] rounded-xl">
+        <Users className="w-12 h-12 text-[var(--text-muted)] mb-4" />
+        <h3 className="text-lg font-medium text-[var(--text)]">No clients found</h3>
+        <p className="text-[var(--text-muted)] mt-2">Data will appear once there are contracts or approvals for clients.</p>
       </div>
     );
   }
@@ -44,7 +44,7 @@ export default function ClientsList() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-zinc-100 tracking-tight">Clients Directory</h1>
+        <h1 className="text-3xl font-bold text-[var(--text)] tracking-tight">Clients Directory</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -57,21 +57,21 @@ export default function ClientsList() {
             <SectionCard className="h-full flex flex-col hover:-translate-y-1 transition-transform duration-300">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h3 className="text-lg font-bold text-zinc-100">{client.name}</h3>
-                  <p className="text-sm text-zinc-400 truncate max-w-[200px]" title={client.email}>{client.email}</p>
+                  <h3 className="text-lg font-bold text-[var(--text)]">{client.name}</h3>
+                  <p className="text-sm text-[var(--text-muted)] truncate max-w-[200px]" title={client.email}>{client.email}</p>
                 </div>
                 {/* Simplified Status logic */}
                 <StatusBadge status={client.contractsCount > 0 ? 'success' : 'processing'} />
               </div>
 
-              <div className="mt-auto grid grid-cols-2 gap-4 pt-4 border-t border-zinc-800/50">
+              <div className="mt-auto grid grid-cols-2 gap-4 pt-4 border-t border-[var(--border)]/50">
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-zinc-500" />
-                  <span className="text-sm text-zinc-300">{client.contractsCount} Contracts</span>
+                  <FileText className="w-4 h-4 text-[var(--text-muted)]" />
+                  <span className="text-sm text-[var(--text-muted)]">{client.contractsCount} Contracts</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-zinc-500" />
-                  <span className="text-sm text-zinc-300">{client.approvalsCount} Approvals</span>
+                  <CheckCircle className="w-4 h-4 text-[var(--text-muted)]" />
+                  <span className="text-sm text-[var(--text-muted)]">{client.approvalsCount} Approvals</span>
                 </div>
               </div>
             </SectionCard>

@@ -14,19 +14,21 @@ import StatCard from '../../components/ui/StatCard';
 import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { useDashboardQuery } from './hooks';
+import { useTheme } from '../../context/ThemeContext';
 
 const Dashboard = () => {
     const { data, isLoading, isError } = useDashboardQuery();
+    const { theme } = useTheme();
 
     if (isLoading) {
         return (
             <div className="space-y-10 pb-10 animate-pulse">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-surface-elevated rounded-xl"></div>)}
+                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-[var(--surface)] rounded-xl"></div>)}
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 h-96 bg-surface-elevated rounded-xl"></div>
-                    <div className="h-96 bg-surface-elevated rounded-xl"></div>
+                    <div className="lg:col-span-2 h-96 bg-[var(--surface)] rounded-xl"></div>
+                    <div className="h-96 bg-[var(--surface)] rounded-xl"></div>
                 </div>
             </div>
         );
@@ -43,6 +45,16 @@ const Dashboard = () => {
     if (!data) return null;
 
     const { dashboardStats, contractsChartData, savingsBreakdown, recentActivity } = data;
+
+    // Theme-aware chart colors (matching user-provided variables)
+    const chartColors = {
+        grid: theme === 'dark' ? '#27272a' : '#e2e8f0', // matches --border
+        text: theme === 'dark' ? '#a1a1aa' : '#64748b', // matches --text-muted
+        tooltipBg: theme === 'dark' ? '#111113' : '#ffffff', // matches --surface / --bg
+        tooltipBorder: theme === 'dark' ? '#27272a' : '#e2e8f0', // matches --border
+        tooltipText: theme === 'dark' ? '#ffffff' : '#0f172a', // matches --text
+        cursor: theme === 'dark' ? '#1c1c1f' : '#f8f9fb', // matches --surface
+    };
 
     return (
         <div className="space-y-10 pb-10">
@@ -69,17 +81,17 @@ const Dashboard = () => {
                         <div className="w-full min-w-0 mt-4 h-[300px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={contractsChartData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} vertical={false} />
                                     <XAxis
                                         dataKey="name"
-                                        stroke="#71717a"
+                                        stroke={chartColors.text}
                                         fontSize={10}
                                         tickLine={false}
                                         axisLine={false}
                                         dy={10}
                                     />
                                     <YAxis
-                                        stroke="#71717a"
+                                        stroke={chartColors.text}
                                         fontSize={10}
                                         tickLine={false}
                                         axisLine={false}
@@ -87,18 +99,18 @@ const Dashboard = () => {
                                     />
                                     <Tooltip
                                         contentStyle={{
-                                            backgroundColor: '#121214',
-                                            border: '1px solid #27272a',
+                                            backgroundColor: chartColors.tooltipBg,
+                                            border: `1px solid ${chartColors.tooltipBorder}`,
                                             borderRadius: '8px',
                                             fontSize: '11px',
-                                            color: '#f4f4f5'
+                                            color: chartColors.tooltipText
                                         }}
-                                        cursor={{ fill: '#1c1c1f' }}
+                                        cursor={{ fill: chartColors.cursor }}
                                     />
                                     <Bar
                                         dataKey="value"
                                         radius={[4, 4, 0, 0]}
-                                        className="fill-primary/80 hover:fill-primary transition-all duration-300"
+                                        className="fill-primary transition-all duration-300"
                                     >
                                         {contractsChartData.map((entry, index) => (
                                             <Cell key={`cell-${index}`} />
@@ -108,7 +120,7 @@ const Dashboard = () => {
                             </ResponsiveContainer>
                         </div>
                     ) : (
-                        <div className="flex items-center justify-center h-[300px] text-zinc-500">
+                        <div className="flex items-center justify-center h-[300px] text-[var(--text-muted)]">
                             No chart data
                         </div>
                     )}
@@ -119,18 +131,18 @@ const Dashboard = () => {
                     <div className="space-y-6 mt-4">
                         {savingsBreakdown.length > 0 ? savingsBreakdown.map((item, index) => (
                             <div key={index} className="flex items-center justify-between group">
-                                <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
+                                <span className="text-sm text-[var(--text-muted)] group-hover:text-[var(--text)] transition-colors">
                                     {item.label}
                                 </span>
                                 <span className={`text-lg font-bold ${item.type === 'success' ? 'text-status-success' :
-                                        item.type === 'error' ? 'text-status-error' :
-                                            item.type === 'gold' ? 'text-primary' : 'text-text-primary'
+                                    item.type === 'error' ? 'text-status-error' :
+                                        item.type === 'gold' ? 'text-primary' : 'text-[var(--text)]'
                                     }`}>
                                     {item.value}
                                 </span>
                             </div>
                         )) : (
-                            <div className="text-zinc-500">No savings data.</div>
+                            <div className="text-[var(--text-muted)]">No savings data.</div>
                         )}
                     </div>
                 </SectionCard>
@@ -141,16 +153,16 @@ const Dashboard = () => {
                 {recentActivity.length > 0 ? (
                     <div className="space-y-4">
                         {recentActivity.map((activity) => (
-                            <div key={activity.id} className="flex items-center justify-between py-3 border-b border-border last:border-0 hover:bg-surface-highlight/20 px-4 -mx-4 rounded-lg transition-colors">
+                            <div key={activity.id} className="flex items-center justify-between py-3 border-b border-[var(--border)] last:border-0 hover:bg-[var(--surface)] px-4 -mx-4 rounded-lg transition-colors">
                                 <div className="flex items-center gap-4">
                                     <div className={`w-2 h-2 rounded-full ${activity.status === 'success' || activity.status === 'Generated' ? 'bg-status-success' :
-                                            activity.status === 'warning' || activity.status === 'Pending' ? 'bg-status-warning' : 'bg-status-error'
+                                        activity.status === 'warning' || activity.status === 'Pending' ? 'bg-status-warning' : 'bg-status-error'
                                         }`} />
                                     <div>
-                                        <p className="text-sm font-semibold text-text-primary">
+                                        <p className="text-sm font-semibold text-[var(--text)]">
                                             {activity.action}: <span className="text-primary">{activity.target}</span>
                                         </p>
-                                        <p className="text-[11px] text-text-muted mt-1 uppercase tracking-wider">
+                                        <p className="text-[11px] text-[var(--text-muted)] mt-1 uppercase tracking-wider">
                                             {activity.type} • {activity.time}
                                         </p>
                                     </div>
@@ -160,7 +172,7 @@ const Dashboard = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="py-8 text-center text-zinc-500 italic">No recent activity.</div>
+                    <div className="py-8 text-center text-[var(--text-muted)] italic">No recent activity.</div>
                 )}
             </SectionCard>
         </div>

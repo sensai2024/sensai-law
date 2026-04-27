@@ -39,17 +39,17 @@ const SlidePanel = ({
       {/* Panel */}
       <div 
         className={cn(
-          "relative w-full bg-surface border-l border-border shadow-premium transform transition-transform duration-300 ease-out h-full flex flex-col",
+          "relative w-full bg-[var(--bg)] border-l border-[var(--border)] shadow-premium transform transition-transform duration-300 ease-out h-full flex flex-col",
           width,
           isOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-surface-elevated/50">
-          <h2 className="text-xl font-bold text-text-primary capitalize">{title}</h2>
+        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface)]/50">
+          <h2 className="text-xl font-bold text-[var(--text)] capitalize">{title}</h2>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-surface-accent rounded-lg text-text-muted hover:text-text-primary transition-colors"
+            className="p-2 hover:bg-[var(--surface)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
           >
             <X size={24} />
           </button>
@@ -62,7 +62,7 @@ const SlidePanel = ({
 
         {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 border-t border-border bg-surface-elevated/50 flex items-center justify-end gap-3 font-semibold">
+          <div className="px-6 py-4 border-t border-[var(--border)] bg-[var(--surface)]/50 flex items-center justify-end gap-3 font-semibold">
             {footer}
           </div>
         )}

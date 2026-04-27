@@ -44,8 +44,8 @@ const ChangePasswordPage = () => {
       {/* Page Header */}
       <div className="flex items-center gap-4 border-l-2 border-primary pl-6">
         <div>
-          <h1 className="text-3xl font-bold text-text-primary tracking-tight">Security Protocol</h1>
-          <p className="text-sm text-text-muted mt-1 uppercase tracking-[0.2em] font-bold">Credential Management System</p>
+          <h1 className="text-3xl font-bold text-[var(--text)] tracking-tight">Security Protocol</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-1 uppercase tracking-[0.2em] font-bold">Credential Management System</p>
         </div>
       </div>
 
@@ -54,13 +54,13 @@ const ChangePasswordPage = () => {
         className="shadow-premium"
         headerActions={<ShieldCheck size={18} className="text-primary" />}
       >
-        <div className="flex items-start gap-4 mb-8 p-4 bg-surface-highlight/50 rounded-xl border border-border/50">
+        <div className="flex items-start gap-4 mb-8 p-4 bg-[var(--surface)]/50 rounded-xl border border-[var(--border)]/50">
           <div className="p-2 bg-primary/10 text-primary rounded-lg">
             <Lock size={20} />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-text-primary">Update Security Credentials</h4>
-            <p className="text-xs text-text-muted mt-1 leading-relaxed">
+            <h4 className="text-sm font-bold text-[var(--text)]">Update Security Credentials</h4>
+            <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
               Your security key is the primary identifier for administrative actions.
               Ensure your new key follows the Altata Légal complexity standard.
             </p>
@@ -82,16 +82,16 @@ const ChangePasswordPage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1">
+              <label className="block text-[10px] font-bold tracking-widest text-[var(--text-muted)] uppercase ml-1">
                 New Security Key
               </label>
               <div className="relative group/input">
-                <Key className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={16} />
+                <Key className="absolute left-3 top-3.5 text-[var(--text-muted)] group-focus-within/input:text-primary transition-colors" size={16} />
                 <input
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
+                  className="w-full pl-10 pr-4 py-3 bg-[var(--surface)]/50 border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -99,16 +99,16 @@ const ChangePasswordPage = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1">
+              <label className="block text-[10px] font-bold tracking-widest text-[var(--text-muted)] uppercase ml-1">
                 Confirm Verification Key
               </label>
               <div className="relative group/input">
-                <Lock className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={16} />
+                <Lock className="absolute left-3 top-3.5 text-[var(--text-muted)] group-focus-within/input:text-primary transition-colors" size={16} />
                 <input
                   type="password"
                   required
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-2.5 h-[46px] bg-surface-highlight border border-border rounded-xl text-text-primary focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
+                  className="w-full pl-10 pr-4 py-2.5 h-[46px] bg-[var(--surface)]/50 border border-[var(--border)] rounded-xl text-[var(--text)] focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all text-sm"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -116,7 +116,7 @@ const ChangePasswordPage = () => {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-border flex justify-end">
+          <div className="pt-4 border-t border-[var(--border)] flex justify-end">
             <ActionButton
               type="submit"
               loading={changePasswordMutation.isPending}
@@ -128,8 +128,8 @@ const ChangePasswordPage = () => {
         </form>
       </SectionCard>
 
-      <div className="p-6 bg-surface-accent/20 rounded-2xl border border-dashed border-border/50 flex items-center justify-center">
-        <p className="text-[10px] text-text-muted font-medium tracking-widest uppercase italic">
+      <div className="p-6 bg-[var(--surface)]/20 rounded-2xl border border-dashed border-[var(--border)]/50 flex items-center justify-center">
+        <p className="text-[10px] text-[var(--text-muted)] font-medium tracking-widest uppercase italic">
           Session identification remaining active during credential transition.
         </p>
       </div>

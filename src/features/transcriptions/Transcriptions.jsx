@@ -57,9 +57,9 @@ const Transcriptions = () => {
     if (isLoading) {
         return (
             <div className="space-y-8 pb-10 animate-pulse">
-                <div className="h-16 bg-surface p-4 rounded-xl border border-border"></div>
+                <div className="h-16 bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)]"></div>
                 <div className="grid grid-cols-1 gap-4">
-                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-surface rounded-xl border border-border"></div>)}
+                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-[var(--surface)] rounded-xl border border-[var(--border)]"></div>)}
                 </div>
             </div>
         );
@@ -93,21 +93,21 @@ const Transcriptions = () => {
     return (
         <div className="space-y-8 pb-10">
             {/* Header / Actions */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface p-4 rounded-xl border border-border shadow-soft">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[var(--surface)] p-4 rounded-xl border border-[var(--border)] shadow-soft">
                 <div className="relative flex-1 max-w-md">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted transition-colors group-focus-within:text-primary" size={16} />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] transition-colors group-focus-within:text-primary" size={16} />
                     <input
                         type="text"
                         placeholder="Search by title, client or email..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all font-medium"
+                        className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all font-medium"
                     />
                 </div>
                 <div className="flex items-center gap-3">
                     <ActionButton variant="secondary" size="md" icon={Filter}>Filters</ActionButton>
-                    <div className="h-8 w-[1px] bg-border mx-1 hidden md:block" />
-                    <p className="text-xs text-text-muted font-bold uppercase tracking-wider px-2">
+                    <div className="h-8 w-[1px] bg-[var(--border)] mx-1 hidden md:block" />
+                    <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-wider px-2">
                         {filteredTranscriptions.length} Records
                     </p>
                 </div>
@@ -119,7 +119,7 @@ const Transcriptions = () => {
                     <div
                         key={t.id}
                         onClick={() => handleOpenDetails(t)}
-                        className="bg-surface rounded-xl border border-border p-5 hover:border-primary/40 hover:shadow-premium transition-all group cursor-pointer relative overflow-hidden"
+                        className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-5 hover:border-primary/40 hover:shadow-premium transition-all group cursor-pointer relative overflow-hidden"
                     >
                         {/* Status bar left decoration */}
                         <div className={cn(
@@ -138,10 +138,10 @@ const Transcriptions = () => {
                                     <FileText size={24} />
                                 </div>
                                 <div className="space-y-1">
-                                    <h4 className="text-base font-bold text-text-primary group-hover:text-primary transition-colors line-clamp-1">
+                                    <h4 className="text-base font-bold text-[var(--text)] group-hover:text-primary transition-colors line-clamp-1">
                                         {t.name}
                                     </h4>
-                                    <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-text-muted font-medium">
+                                    <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-[var(--text-muted)] font-medium">
                                         <div className="flex items-center gap-1.5">
                                             <Calendar size={14} className="text-text-muted/60" />
                                             {t.date}
@@ -158,16 +158,16 @@ const Transcriptions = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between lg:justify-end gap-8 border-t lg:border-t-0 pt-4 lg:pt-0 border-border/50">
+                            <div className="flex items-center justify-between lg:justify-end gap-8 border-t lg:border-t-0 pt-4 lg:pt-0 border-[var(--border)]/50">
                                 <div className="flex items-center gap-6">
                                     <div className="flex flex-col items-end gap-1">
-                                        <span className="text-[10px] font-bold text-text-muted uppercase tracking-tighter">Retries</span>
-                                        <span className="text-xs font-bold font-mono bg-surface-accent px-2 py-0.5 rounded-md border border-border">
+                                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">Retries</span>
+                                        <span className="text-xs font-bold font-mono bg-[var(--surface)] px-2 py-0.5 rounded-md border border-[var(--border)]">
                                             {t.retryCount}
                                         </span>
                                     </div>
                                     <div className="flex flex-col items-end gap-1">
-                                        <span className="text-[10px] font-bold text-text-muted uppercase tracking-tighter">Status</span>
+                                        <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">Status</span>
                                         <StatusBadge status={t.status} />
                                     </div>
                                 </div>
@@ -231,9 +231,9 @@ const Transcriptions = () => {
                 {selectedTranscription && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                         {/* Metadata Header */}
-                        <div className="bg-surface-elevated rounded-2xl p-6 border border-border shadow-soft space-y-4">
+                        <div className="bg-[var(--surface)] rounded-2xl p-6 border border-[var(--border)] shadow-soft space-y-4">
                             <div className="flex items-start justify-between">
-                                <h3 className="text-xl font-black text-text-primary leading-tight">
+                                <h3 className="text-xl font-black text-[var(--text)] leading-tight">
                                     {selectedTranscription.title}
                                 </h3>
                                 <StatusBadge status={selectedTranscription.status} />
@@ -241,29 +241,29 @@ const Transcriptions = () => {
 
                             <div className="grid grid-cols-2 gap-6 pt-2">
                                 <div className="space-y-1">
-                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Client Name</span>
-                                    <p className="text-sm font-bold text-text-secondary flex items-center gap-2">
+                                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Client Name</span>
+                                    <p className="text-sm font-bold text-[var(--text-muted)] flex items-center gap-2">
                                         <User size={14} className="text-primary" />
                                         {selectedTranscription.clientName || 'N/A'}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Client Email</span>
-                                    <p className="text-sm font-bold text-text-secondary flex items-center gap-2">
+                                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Client Email</span>
+                                    <p className="text-sm font-bold text-[var(--text-muted)] flex items-center gap-2">
                                         <Mail size={14} className="text-primary" />
                                         {selectedTranscription.clientEmail || 'N/A'}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Meeting Date</span>
-                                    <p className="text-sm font-bold text-text-secondary flex items-center gap-2">
+                                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Meeting Date</span>
+                                    <p className="text-sm font-bold text-[var(--text-muted)] flex items-center gap-2">
                                         <Calendar size={14} className="text-primary" />
                                         {selectedTranscription.date}
                                     </p>
                                 </div>
                                 <div className="space-y-1">
-                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Retries</span>
-                                    <p className="text-sm font-bold text-text-secondary flex items-center gap-2">
+                                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Retries</span>
+                                    <p className="text-sm font-bold text-[var(--text-muted)] flex items-center gap-2">
                                         <RefreshCcw size={14} className="text-primary" />
                                         {selectedTranscription.retryCount} attempts
                                     </p>
@@ -282,7 +282,10 @@ const Transcriptions = () => {
                                 </div>
                             </div>
 
-                            <div className="prose prose-invert prose-zinc max-w-none bg-background rounded-2xl p-6 md:p-8 border border-border shadow-inner min-h-[600px]">
+                            <div className={cn(
+                                "prose prose-zinc max-w-none bg-[var(--bg)] rounded-2xl p-6 md:p-8 border border-[var(--border)] shadow-inner min-h-[600px]",
+                                "dark:prose-invert"
+                            )}>
                                 {(() => {
                                     const cleanedContent = cleanTranscriptContent(selectedTranscription.content);
                                     const blocks = formatTranscriptBlocks(cleanedContent);
@@ -317,7 +320,7 @@ const Transcriptions = () => {
                                                                             </span>
                                                                         )}
                                                                         {block.timestamp && (
-                                                                            <div className="flex items-center gap-1 text-[10px] font-mono text-text-muted bg-surface-accent px-1.5 py-0.5 rounded border border-border">
+                                                                            <div className="flex items-center gap-1 text-[10px] font-mono text-[var(--text-muted)] bg-[var(--surface)] px-1.5 py-0.5 rounded border border-[var(--border)]">
                                                                                 <Clock size={10} />
                                                                                 {block.timestamp}
                                                                             </div>
@@ -352,13 +355,13 @@ const Transcriptions = () => {
 
             {/* Empty State */}
             {filteredTranscriptions.length === 0 && (
-                <div className="h-96 flex flex-col items-center justify-center text-center space-y-4 border-2 border-dashed border-border rounded-2xl bg-surface/50">
-                    <div className="p-6 bg-surface-accent rounded-full text-text-muted shadow-soft">
+                <div className="h-96 flex flex-col items-center justify-center text-center space-y-4 border-2 border-dashed border-[var(--border)] rounded-2xl bg-[var(--surface)]/50">
+                    <div className="p-6 bg-[var(--surface)] rounded-full text-[var(--text-muted)] shadow-soft">
                         <FileText size={48} />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-text-primary">No transcript records found</h3>
-                        <p className="text-sm text-text-secondary max-w-sm mx-auto mt-2">
+                        <h3 className="text-lg font-bold text-[var(--text)]">No transcript records found</h3>
+                        <p className="text-sm text-[var(--text-muted)] max-w-sm mx-auto mt-2">
                             {searchQuery ? "Try adjusting your search terms to find what you're looking for." : "When new meeting data is added to Supabase, it will appear here automatically."}
                         </p>
                     </div>

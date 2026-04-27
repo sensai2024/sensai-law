@@ -17,10 +17,10 @@ export default function ClientDetails() {
   if (isLoading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-8 w-24 bg-surface-elevated rounded mb-6"></div>
-        <div className="h-10 w-64 bg-surface-elevated rounded"></div>
+        <div className="h-8 w-24 bg-[var(--surface)] rounded mb-6"></div>
+        <div className="h-10 w-64 bg-[var(--surface)] rounded"></div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => <div key={i} className="h-32 bg-surface-elevated rounded-xl"></div>)}
+          {[1, 2, 3].map((i) => <div key={i} className="h-32 bg-[var(--surface)] rounded-xl"></div>)}
         </div>
       </div>
     );
@@ -35,7 +35,7 @@ export default function ClientDetails() {
   }
 
   if (!client) {
-    return <div className="text-zinc-400">Client not found.</div>;
+    return <div className="text-[var(--text-muted)]">Client not found.</div>;
   }
 
   return (
@@ -43,15 +43,15 @@ export default function ClientDetails() {
       <div>
         <button
           onClick={() => navigate('/clients')}
-          className="flex items-center text-sm text-zinc-400 hover:text-zinc-100 transition-colors mb-6 group"
+          className="flex items-center text-sm text-[var(--text-muted)] hover:text-[var(--text)] transition-colors mb-6 group"
         >
           <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
           Back to Directory
         </button>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-zinc-100">{client.name}</h1>
-            <p className="text-zinc-400 mt-1">{client.email}</p>
+            <h1 className="text-3xl font-bold text-[var(--text)]">{client.name}</h1>
+            <p className="text-[var(--text-muted)] mt-1">{client.email}</p>
           </div>
         </div>
       </div>
@@ -67,14 +67,14 @@ export default function ClientDetails() {
           {client.contracts.length > 0 ? (
             <ul className="space-y-3">
               {client.contracts.map(c => (
-                <li key={c.id} className="p-3 bg-zinc-900/50 rounded flex justify-between">
-                  <span className="text-zinc-300 truncate mr-2">{c.title || `Contract #${c.id.substring(0, 6)}`}</span>
-                  <span className="text-xs text-zinc-500 uppercase">{c.status}</span>
+                <li key={c.id} className="p-3 bg-[var(--surface)] rounded flex justify-between">
+                  <span className="text-[var(--text-muted)] truncate mr-2">{c.title || `Contract #${c.id.substring(0, 6)}`}</span>
+                  <span className="text-xs text-[var(--text-muted)] uppercase">{c.status}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-zinc-500 italic py-4">No contracts associated.</p>
+            <p className="text-[var(--text-muted)] italic py-4">No contracts associated.</p>
           )}
         </SectionCard>
 
@@ -82,14 +82,14 @@ export default function ClientDetails() {
           {client.approvals.length > 0 ? (
             <ul className="space-y-3">
               {client.approvals.map(a => (
-                <li key={a.id} className="p-3 bg-zinc-900/50 rounded flex justify-between">
-                  <span className="text-zinc-300">Approval #{a.id.substring(0, 8)}</span>
-                  <span className="text-xs text-brand-primary">{a.status}</span>
+                <li key={a.id} className="p-3 bg-[var(--surface)] rounded flex justify-between">
+                  <span className="text-[var(--text-muted)]">Approval #{a.id.substring(0, 8)}</span>
+                  <span className="text-xs text-primary">{a.status}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-zinc-500 italic py-4">No approvals found.</p>
+            <p className="text-[var(--text-muted)] italic py-4">No approvals found.</p>
           )}
         </SectionCard>
       </div>

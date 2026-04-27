@@ -12,10 +12,10 @@ const ActionButton = ({
   ...props 
 }) => {
   const variants = {
-    primary: 'bg-primary text-background hover:bg-primary-hover shadow-gold-glow font-semibold',
-    secondary: 'bg-surface-accent text-text-primary hover:bg-surface-highlight border border-border',
+    primary: 'bg-primary text-[#0f172a] dark:text-[var(--bg)] hover:bg-primary-hover shadow-gold-glow font-semibold',
+    secondary: 'bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface)]/80 border border-[var(--border)]',
     outline: 'border border-primary text-primary hover:bg-primary/10',
-    ghost: 'text-text-secondary hover:text-text-primary hover:bg-surface-accent',
+    ghost: 'text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface)]',
     danger: 'bg-status-error text-white hover:bg-status-error/90',
   };
 

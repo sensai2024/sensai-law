@@ -4,13 +4,13 @@ import { cn } from '../../lib/utils';
 const SectionCard = ({ title, children, className, headerActions }) => {
   return (
     <div className={cn(
-      'bg-surface rounded-xl border border-border shadow-premium flex flex-col',
+      'bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-premium flex flex-col',
       className
     )}>
       {(title || headerActions) && (
-        <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
           {title && (
-            <h4 className="text-[11px] font-bold tracking-[0.15em] text-text-muted uppercase">
+            <h4 className="text-[11px] font-bold tracking-[0.15em] text-[var(--text-muted)] uppercase">
               {title}
             </h4>
           )}

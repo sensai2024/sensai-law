@@ -40,17 +40,17 @@ const ResetPasswordPage = () => {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
-        <div className="max-w-md w-full space-y-8 p-10 bg-surface rounded-2xl border border-border shadow-premium text-center animate-in zoom-in-95 duration-300">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+        <div className="max-w-md w-full space-y-8 p-10 bg-[var(--surface)] rounded-2xl border border-[var(--border)] shadow-premium text-center animate-in zoom-in-95 duration-300">
            <div className="w-20 h-20 bg-status-success/10 text-status-success rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
             <CheckCircle2 size={40} />
           </div>
-          <h2 className="text-2xl font-bold text-text-primary tracking-tight">Security Protocol Updated</h2>
-          <p className="mt-4 text-text-muted leading-relaxed">
+          <h2 className="text-2xl font-bold text-[var(--text)] tracking-tight">Security Protocol Updated</h2>
+          <p className="mt-4 text-[var(--text-muted)] leading-relaxed">
             Your identification key has been successfully re-provisioned. 
             Redirecting to the secure gateway...
           </p>
-          <div className="mt-10 pt-6 border-t border-border/50">
+          <div className="mt-10 pt-6 border-t border-[var(--border)]/50">
             <Link to="/login" className="text-primary hover:text-primary-hover font-bold text-xs uppercase tracking-widest">
               Click here to bypass redirection
             </Link>
@@ -61,21 +61,21 @@ const ResetPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--bg)] px-4 relative overflow-hidden">
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
 
       <div className="max-w-md w-full z-10">
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">
-            <div className="w-16 h-16 bg-surface-highlight border border-border rounded-2xl flex items-center justify-center text-primary shadow-gold-glow">
+            <div className="w-16 h-16 bg-[var(--surface)] border border-[var(--border)] rounded-2xl flex items-center justify-center text-primary shadow-gold-glow">
               <ShieldCheck size={32} />
             </div>
           </div>
-          <h2 className="text-3xl font-bold text-text-primary tracking-tight">Finalize Recovery</h2>
-          <p className="mt-2 text-[10px] font-bold tracking-[0.2em] text-text-muted uppercase">Secure Identification Setup</p>
+          <h2 className="text-3xl font-bold text-[var(--text)] tracking-tight">Finalize Recovery</h2>
+          <p className="mt-2 text-[10px] font-bold tracking-[0.2em] text-[var(--text-muted)] uppercase">Secure Identification Setup</p>
         </div>
 
-        <div className="bg-surface p-8 rounded-2xl border border-border shadow-premium">
+        <div className="bg-[var(--surface)] p-8 rounded-2xl border border-[var(--border)] shadow-premium">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="bg-status-error/10 border border-status-error/30 text-status-error p-3 rounded-xl text-xs font-bold">
@@ -85,17 +85,17 @@ const ResetPasswordPage = () => {
 
             <div className="space-y-5">
               <div>
-                <label htmlFor="password" name="new-password-label" className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1 mb-2">
+                <label htmlFor="password" name="new-password-label" className="block text-[10px] font-bold tracking-widest text-[var(--text-muted)] uppercase ml-1 mb-2">
                   New Security Key
                 </label>
                 <div className="relative group/input">
-                  <Key className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                  <Key className="absolute left-3 top-3.5 text-[var(--text-muted)] group-focus-within/input:text-primary transition-colors" size={18} />
                   <input
                     id="password"
                     name="password"
                     type="password"
                     required
-                    className="block w-full pl-11 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                    className="block w-full pl-11 pr-4 py-3 bg-[var(--surface)]/50 border border-[var(--border)] rounded-xl text-[var(--text)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -104,17 +104,17 @@ const ResetPasswordPage = () => {
               </div>
 
               <div>
-                <label htmlFor="confirm-password" name="confirm-password-label" className="block text-[10px] font-bold tracking-widest text-text-muted uppercase ml-1 mb-2">
+                <label htmlFor="confirm-password" name="confirm-password-label" className="block text-[10px] font-bold tracking-widest text-[var(--text-muted)] uppercase ml-1 mb-2">
                   Confirm Verification Key
                 </label>
                 <div className="relative group/input">
-                  <Lock className="absolute left-3 top-3.5 text-text-muted group-focus-within/input:text-primary transition-colors" size={18} />
+                  <Lock className="absolute left-3 top-3.5 text-[var(--text-muted)] group-focus-within/input:text-primary transition-colors" size={18} />
                   <input
                     id="confirm-password"
                     name="confirm-password"
                     type="password"
                     required
-                    className="block w-full pl-11 pr-4 py-3 bg-surface-highlight border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
+                    className="block w-full pl-11 pr-4 py-3 bg-[var(--surface)]/50 border border-[var(--border)] rounded-xl text-[var(--text)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-1 focus:ring-primary/50 focus:border-primary transition-all duration-200"
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}

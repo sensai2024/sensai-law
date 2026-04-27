@@ -15,14 +15,14 @@ const StatCard = ({ label, value, trend, trendType, className }) => {
 
   return (
     <div className={cn(
-      'p-6 bg-surface rounded-xl border border-border shadow-premium hover:border-surface-accent transition-all duration-300 group',
+      'p-6 bg-[var(--surface)] rounded-xl border border-[var(--border)] shadow-premium hover:border-primary transition-all duration-300 group',
       className
     )}>
-      <p className="text-[10px] font-bold tracking-[0.1em] text-text-muted mb-3 group-hover:text-text-secondary transition-colors uppercase">
+      <p className="text-[10px] font-bold tracking-[0.1em] text-[var(--text-muted)] mb-3 group-hover:text-[var(--text)] transition-colors uppercase">
         {label}
       </p>
       <div className="flex flex-col gap-1">
-        <h3 className="text-3xl font-bold text-text-primary tracking-tight">
+        <h3 className="text-3xl font-bold text-[var(--text)] tracking-tight">
           {value}
         </h3>
         <p className={cn(

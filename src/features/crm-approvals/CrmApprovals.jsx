@@ -59,11 +59,11 @@ const JsonDataViewer = ({ data }) => {
   }
 
   if (Array.isArray(parsed)) {
-    if (parsed.length === 0) return <span className="text-text-muted italic">Empty catalog</span>;
+    if (parsed.length === 0) return <span className="text-[var(--text-muted)] italic">Empty catalog</span>;
     return (
       <div className="space-y-2">
         {parsed.map((item, idx) => (
-          <div key={idx} className="bg-surface-elevated/30 rounded border border-border/20 p-3">
+          <div key={idx} className="bg-[var(--surface)] rounded border border-[var(--border)]/20 p-3">
             <JsonDataViewer data={item} />
           </div>
         ))}
@@ -72,17 +72,17 @@ const JsonDataViewer = ({ data }) => {
   }
 
   const entries = Object.entries(parsed);
-  if (entries.length === 0) return <span className="text-text-muted italic">Empty</span>;
+  if (entries.length === 0) return <span className="text-[var(--text-muted)] italic">Empty</span>;
 
   return (
     <table className="w-full text-left border-collapse">
-      <tbody className="divide-y divide-border/20">
+      <tbody className="divide-y divide-[var(--border)]/20">
         {entries.map(([key, value]) => (
           <tr key={key} className="hover:bg-primary/5 transition-colors group">
-            <td className="py-2.5 px-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-1/3 align-top bg-surface-accent/5 border-r border-border/20 group-hover:bg-primary/10 transition-colors">
+            <td className="py-2.5 px-3 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider w-1/3 align-top bg-[var(--surface)]/5 border-r border-[var(--border)]/20 group-hover:bg-primary/10 transition-colors">
               {key.replace(/_/g, ' ')}
             </td>
-            <td className="py-2.5 px-3 text-sm font-medium text-text-primary align-top break-words">
+            <td className="py-2.5 px-3 text-sm font-medium text-[var(--text)] align-top break-words">
               <JsonDataViewer data={value} />
             </td>
           </tr>
@@ -123,7 +123,7 @@ const EditableJsonViewer = ({ data, onChange }) => {
     return (
       <div className="space-y-2">
         {data.map((item, idx) => (
-          <div key={idx} className="bg-surface-elevated/20 rounded border border-border/20 p-2">
+          <div key={idx} className="bg-[var(--surface)] rounded border border-[var(--border)]/20 p-2">
             <EditableJsonViewer 
               data={item} 
               onChange={(newVal) => {
@@ -140,11 +140,11 @@ const EditableJsonViewer = ({ data, onChange }) => {
 
   const entries = Object.entries(data);
   return (
-    <table className="w-full text-left border-collapse bg-surface/50 rounded-lg overflow-hidden">
-      <tbody className="divide-y divide-border/20">
+    <table className="w-full text-left border-collapse bg-[var(--surface)]/50 rounded-lg overflow-hidden">
+      <tbody className="divide-y divide-[var(--border)]/20">
         {entries.map(([key, value]) => (
           <tr key={key} className="group">
-            <td className="py-2 px-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-1/3 align-middle bg-surface-accent/5 border-r border-border/20">
+            <td className="py-2 px-3 text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider w-1/3 align-middle bg-[var(--surface)]/5 border-r border-[var(--border)]/20">
               {key.replace(/_/g, ' ')}
             </td>
             <td className="py-1.5 px-2 align-middle">
@@ -279,10 +279,10 @@ const CrmApprovals = () => {
     return (
       <div className="space-y-8 pb-10 animate-pulse">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => <div key={i} className="h-32 bg-surface-elevated rounded-xl"></div>)}
+          {[1, 2, 3].map(i => <div key={i} className="h-32 bg-[var(--surface)] rounded-xl"></div>)}
         </div>
         <div className="space-y-4">
-          {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-surface-elevated rounded-xl"></div>)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-[var(--surface)] rounded-xl"></div>)}
         </div>
       </div>
     );
@@ -314,7 +314,7 @@ const CrmApprovals = () => {
       {/* Grouped List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-2 px-1">
-          <h3 className="text-sm font-bold text-text-muted tracking-widest uppercase flex items-center gap-2">
+          <h3 className="text-sm font-bold text-[var(--text-muted)] tracking-widest uppercase flex items-center gap-2">
             CRM APPROVAL THREADS <span className="text-xs opacity-50 font-medium">({groupedEntries.length})</span>
           </h3>
         </div>
@@ -323,24 +323,24 @@ const CrmApprovals = () => {
           <div
             key={group.transcript_id}
             onClick={() => handleOpenThread(group.transcript_id)}
-            className="bg-surface rounded-xl border border-border p-5 shadow-premium hover:border-primary/40 transition-all duration-300 group cursor-pointer"
+            className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-5 shadow-premium hover:border-primary/40 transition-all duration-300 group cursor-pointer"
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-lg bg-surface-accent flex items-center justify-center text-text-secondary group-hover:text-primary transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-[var(--border)]/10 flex items-center justify-center text-[var(--text-muted)] group-hover:text-primary transition-colors">
                   <User size={20} />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-bold text-text-primary group-hover:text-primary transition-colors">
+                  <h4 className="font-bold text-[var(--text)] group-hover:text-primary transition-colors">
                     {group.latest_client_name}
                   </h4>
-                  <div className="flex items-center gap-3 text-xs text-text-secondary font-medium">
+                  <div className="flex items-center gap-3 text-xs text-[var(--text-muted)] font-medium">
                     <span className="flex items-center gap-1">
-                      <Building2 size={12} className="text-text-muted" />
+                      <Building2 size={12} className="text-[var(--text-muted)]" />
                       {group.latest_company_name}
                     </span>
-                    <span className="w-1 h-1 rounded-full bg-border" />
-                    <span className="text-text-muted">ID: {group.transcript_id.substring(0, 8)}...</span>
+                    <span className="w-1 h-1 rounded-full bg-[var(--border)]" />
+                    <span className="text-[var(--text-muted)]">ID: {group.transcript_id.substring(0, 8)}...</span>
                   </div>
                 </div>
               </div>
@@ -348,21 +348,21 @@ const CrmApprovals = () => {
               <div className="flex items-center gap-6">
                 <div className="flex flex-col items-end gap-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">LATEST:</span>
+                    <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">LATEST:</span>
                     <StatusBadge status={group.latest_status} />
                   </div>
-                  <span className="text-[10px] text-text-muted flex items-center gap-1 font-medium italic">
+                  <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1 font-medium italic">
                     <Clock size={10} />
                     {group.latest_date ? formatDate(group.latest_date) : 'N/A'}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3 pl-6 border-l border-border">
+                <div className="flex items-center gap-3 pl-6 border-l border-[var(--border)]">
                   <div className="flex flex-col items-center">
-                    <span className="text-lg font-bold text-text-primary leading-none">{group.version_count}</span>
-                    <span className="text-[9px] font-bold text-text-muted uppercase tracking-tighter">VERSIONS</span>
+                    <span className="text-lg font-bold text-[var(--text)] leading-none">{group.version_count}</span>
+                    <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">VERSIONS</span>
                   </div>
-                  <ChevronRight size={20} className="text-text-muted group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                  <ChevronRight size={20} className="text-[var(--text-muted)] group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </div>
               </div>
             </div>
@@ -370,9 +370,9 @@ const CrmApprovals = () => {
         ))}
 
         {groupedEntries.length === 0 && (
-          <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl">
-            <Check className="text-text-muted mb-2" size={32} />
-            <p className="text-text-secondary font-medium">No CRM records found.</p>
+          <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-[var(--border)] rounded-xl">
+            <Check className="text-[var(--text-muted)] mb-2" size={32} />
+            <p className="text-[var(--text-muted)] font-medium">No CRM records found.</p>
           </div>
         )}
       </div>
@@ -386,7 +386,7 @@ const CrmApprovals = () => {
         footer={
           selectedVersion && (
             <div className="flex items-center justify-between w-full">
-              <div className="text-xs text-text-muted italic">
+              <div className="text-xs text-[var(--text-muted)] italic">
                 {isEditMode ? "Editing current selection..." : `Viewing version from ${selectedVersion.created_at ? formatDate(selectedVersion.created_at) : ''}`}
               </div>
               <div className="flex items-center gap-3">
@@ -450,15 +450,15 @@ const CrmApprovals = () => {
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
           {/* History Sidebar */}
-          <div className="lg:col-span-4 border-r border-border pr-6 space-y-4">
+          <div className="lg:col-span-4 border-r border-[var(--border)] pr-6 space-y-4">
             <div className="flex items-center gap-2 mb-4">
               <History size={16} className="text-primary" />
-              <h4 className="text-xs font-bold text-text-muted uppercase tracking-widest">Version History</h4>
+              <h4 className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Version History</h4>
             </div>
 
             <div className="space-y-3">
               {versionsQuery.isLoading ? (
-                <div className="text-xs text-text-muted flex items-center gap-2">
+                <div className="text-xs text-[var(--text-muted)] flex items-center gap-2">
                   <div className="animate-spin rounded-full h-3 w-3 border-2 border-primary border-t-transparent" />
                   Loading history...
                 </div>
@@ -469,17 +469,17 @@ const CrmApprovals = () => {
                     onClick={() => handleSelectVersion(v)}
                     className={`p-3 rounded-lg border transition-all cursor-pointer ${selectedVersion?.id === v.id
                         ? 'bg-primary/5 border-primary shadow-premium'
-                        : 'bg-surface-elevated/30 border-border hover:border-text-muted'
+                        : 'bg-[var(--surface)] border-[var(--border)] hover:border-[var(--text-muted)]'
                       }`}
                   >
                     <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] font-bold text-text-muted uppercase tracking-tighter">
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
                         V{versionsQuery.data.length - idx} {idx === 0 && <span className="text-secondary ml-1.5">(LATEST)</span>}
                       </span>
                       <StatusBadge status={v.status} className="scale-75 origin-right" />
                     </div>
-                    <p className="text-xs font-bold text-text-primary mb-1 line-clamp-1">{v.company_name}</p>
-                    <span className="text-[10px] text-text-muted flex items-center gap-1 font-medium">
+                    <p className="text-xs font-bold text-[var(--text)] mb-1 line-clamp-1">{v.company_name}</p>
+                    <span className="text-[10px] text-[var(--text-muted)] flex items-center gap-1 font-medium">
                       <Clock size={10} />
                       {v.created_at ? formatDate(v.created_at) : 'N/A'}
                     </span>
@@ -490,19 +490,19 @@ const CrmApprovals = () => {
           </div>
 
           {/* Details Form / View */}
-          <div className="lg:col-span-8 flex flex-col h-full bg-surface-elevated/20 rounded-xl p-6 border border-border/50">
+          <div className="lg:col-span-8 flex flex-col h-full bg-[var(--surface)]/20 rounded-xl p-6 border border-[var(--border)]/50">
             {selectedVersion ? (
               <div className="space-y-6 flex-1 flex flex-col">
-                <div className="flex items-center justify-between border-b border-border pb-4 mb-2">
+                <div className="flex items-center justify-between border-b border-[var(--border)] pb-4 mb-2">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary text-xl">
                       {selectedVersion.initials}
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-text-primary">{selectedVersion.client_name}</h3>
-                      <div className="flex items-center gap-3 text-sm text-text-secondary mt-1">
+                      <h3 className="text-xl font-bold text-[var(--text)]">{selectedVersion.client_name}</h3>
+                      <div className="flex items-center gap-3 text-sm text-[var(--text-muted)] mt-1">
                         <span className="flex items-center gap-1.5">
-                          <Mail size={14} className="text-text-muted" />
+                          <Mail size={14} className="text-[var(--text-muted)]" />
                           {selectedVersion.client_email}
                         </span>
                       </div>
@@ -510,13 +510,13 @@ const CrmApprovals = () => {
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-text-muted">TIER</span>
-                      <span className={`text-xs font-bold ${selectedVersion.tier === 'Gold' ? 'text-primary' : 'text-text-muted'}`}>
+                      <span className="text-[10px] font-bold text-[var(--text-muted)]">TIER</span>
+                      <span className={`text-xs font-bold ${selectedVersion.tier === 'Gold' ? 'text-primary' : 'text-[var(--text-muted)]'}`}>
                         {selectedVersion.tier}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold text-text-muted uppercase">Confidence</span>
+                      <span className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Confidence</span>
                       <StatusBadge status={selectedVersion.confidence} />
                     </div>
                   </div>
@@ -524,42 +524,42 @@ const CrmApprovals = () => {
 
                 <div className="grid grid-cols-2 gap-6 pt-2">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Client Name</label>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] tracking-widest uppercase">Client Name</label>
                     {isEditMode ? (
                       <input
                         type="text"
                         value={editedData.client_name}
                         onChange={(e) => setEditedData({ ...editedData, client_name: e.target.value })}
-                        className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
+                        className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-4 py-2 text-sm text-[var(--text)] focus:border-primary outline-none transition-all"
                       />
                     ) : (
-                      <p className="text-sm font-medium text-text-primary py-2">{selectedVersion.client_name}</p>
+                      <p className="text-sm font-medium text-[var(--text)] py-2">{selectedVersion.client_name}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Client Email</label>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] tracking-widest uppercase">Client Email</label>
                     {isEditMode ? (
                       <input
                         type="email"
                         value={editedData.client_email}
                         onChange={(e) => setEditedData({ ...editedData, client_email: e.target.value })}
-                        className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
+                        className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-4 py-2 text-sm text-[var(--text)] focus:border-primary outline-none transition-all"
                       />
                     ) : (
-                      <p className="text-sm font-medium text-text-primary py-2">{selectedVersion.client_email}</p>
+                      <p className="text-sm font-medium text-[var(--text)] py-2">{selectedVersion.client_email}</p>
                     )}
                   </div>
                   <div className="space-y-2 col-span-2">
-                    <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase">Company Name</label>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] tracking-widest uppercase">Company Name</label>
                     {isEditMode ? (
                       <input
                         type="text"
                         value={editedData.company_name}
                         onChange={(e) => setEditedData({ ...editedData, company_name: e.target.value })}
-                        className="w-full bg-surface border border-border rounded-lg px-4 py-2 text-sm text-text-primary focus:border-primary outline-none transition-all"
+                        className="w-full bg-[var(--surface)] border border-[var(--border)] rounded-lg px-4 py-2 text-sm text-[var(--text)] focus:border-primary outline-none transition-all"
                       />
                     ) : (
-                      <p className="text-sm font-medium text-text-primary py-2 flex items-center gap-2">
+                      <p className="text-sm font-medium text-[var(--text)] py-2 flex items-center gap-2">
                         <Building2 size={16} className="text-primary" />
                         {selectedVersion.company_name}
                       </p>
@@ -568,10 +568,10 @@ const CrmApprovals = () => {
                 </div>
 
                 <div className="flex-1 space-y-2 mt-4 flex flex-col min-h-0">
-                  <label className="text-[10px] font-bold text-text-muted tracking-widest uppercase flex items-center justify-between">
+                  <label className="text-[10px] font-bold text-[var(--text-muted)] tracking-widest uppercase flex items-center justify-between">
                     Extracted Data
                   </label>
-                  <div className={`flex-1 border border-border rounded-xl overflow-hidden flex flex-col bg-surface-elevated/20`}>
+                  <div className={`flex-1 border border-[var(--border)] rounded-xl overflow-hidden flex flex-col bg-[var(--surface)]/20`}>
                     {isEditMode ? (
                       <div className="w-full h-full overflow-y-auto scrollbar-thin p-1">
                         <EditableJsonViewer 
@@ -588,11 +588,11 @@ const CrmApprovals = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-text-muted space-y-4">
+              <div className="flex-1 flex flex-col items-center justify-center text-[var(--text-muted)] space-y-4">
                 <div className="animate-pulse flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-border/20 mb-4" />
-                  <div className="h-4 w-32 bg-border/20 rounded mb-2" />
-                  <div className="h-3 w-48 bg-border/10 rounded" />
+                  <div className="w-16 h-16 rounded-full bg-[var(--border)]/20 mb-4" />
+                  <div className="h-4 w-32 bg-[var(--border)]/20 rounded mb-2" />
+                  <div className="h-3 w-48 bg-[var(--border)]/10 rounded" />
                 </div>
               </div>
             )}
