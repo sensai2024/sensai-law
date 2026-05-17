@@ -25,6 +25,7 @@ import {
   useSaveEditedContractMutation
 } from './hooks';
 import { cleanContractHtml } from './utils';
+import { useAuth } from '../../features/auth/AuthContext';
 
 const Contracts = () => {
   const [selectedTranscriptId, setSelectedTranscriptId] = useState(null);
@@ -247,6 +248,7 @@ const ContractDetails = ({ contractId, onBack }) => {
   const { data: contract, isLoading, isError } = useContractDetailsQuery(contractId);
   const regenerateMutation = useRegenerateContractMutation();
   const saveMutation = useSaveEditedContractMutation();
+  const { isAdmin, triggerAdminError } = useAuth();
 
   const [localContent, setLocalContent] = useState(undefined);
 
@@ -257,6 +259,10 @@ const ContractDetails = ({ contractId, onBack }) => {
 
 
   const handleSave = () => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     saveMutation.mutate({ contract, content: currentContent }, {
       onSuccess: () => {
         setLocalContent(undefined);
@@ -266,6 +272,10 @@ const ContractDetails = ({ contractId, onBack }) => {
   };
 
   const handleRegenerate = () => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     regenerateMutation.mutate(contract);
   };
 
@@ -346,9 +356,19 @@ const ContractDetails = ({ contractId, onBack }) => {
           >
             <div
               className="w-full h-[600px] overflow-y-auto bg-[var(--surface)]/50 border border-[var(--border)] rounded-lg p-6 text-sm text-[var(--text)] leading-relaxed custom-scrollbar prose prose-sm dark:prose-invert max-w-none focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-200"
-              contentEditable={true}
+              contentEditable={isAdmin}
               suppressContentEditableWarning={true}
               onBlur={(e) => setLocalContent(e.target.innerHTML)}
+              onFocus={() => {
+                if (!isAdmin) {
+                  triggerAdminError();
+                }
+              }}
+              onClick={() => {
+                if (!isAdmin) {
+                  triggerAdminError();
+                }
+              }}
               dangerouslySetInnerHTML={{ __html: cleanContractHtml(currentContent) }}
             />
           </SectionCard>

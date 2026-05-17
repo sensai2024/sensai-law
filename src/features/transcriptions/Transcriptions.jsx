@@ -26,10 +26,12 @@ import { cn } from '../../lib/utils';
 import { useTranscriptionsQuery, useApproveTranscriptionMutation } from './hooks';
 import ReactMarkdown from 'react-markdown';
 import { cleanTranscriptContent, formatTranscriptBlocks } from './utils';
+import { useAuth } from '../../features/auth/AuthContext';
 
 const Transcriptions = () => {
     const [selectedTranscription, setSelectedTranscription] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const { isAdmin, triggerAdminError } = useAuth();
 
     const { data: transcriptions, isLoading, isError, refetch } = useTranscriptionsQuery();
     const approveMutation = useApproveTranscriptionMutation();
@@ -44,6 +46,11 @@ const Transcriptions = () => {
 
     const handleApprove = async () => {
         if (!selectedTranscription) return;
+
+        if (!isAdmin) {
+            triggerAdminError();
+            return;
+        }
 
         try {
             await approveMutation.mutateAsync(selectedTranscription);

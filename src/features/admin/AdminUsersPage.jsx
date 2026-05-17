@@ -12,8 +12,10 @@ import SectionCard from '../../components/ui/SectionCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { cn } from '../../lib/utils';
 import { supabase } from '../../lib/supabase/client';
+import { useAuth } from '../../features/auth/AuthContext';
 
 const AdminUsersPage = () => {
+  const { isAdmin, triggerAdminError } = useAuth();
   const { data: users, isLoading, error, refetch } = useAdminUsersQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -61,6 +63,10 @@ const AdminUsersPage = () => {
 
   const handleCreateUser = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     setActionStatus({ type: '', message: '' });
     
     createMutation.mutate(newUserInfo, {
@@ -76,6 +82,10 @@ const AdminUsersPage = () => {
   };
 
   const handleEditUser = (user) => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     setSelectedUser(user);
     setEditUserInfo({
       full_name: user.full_name,
@@ -88,6 +98,10 @@ const AdminUsersPage = () => {
 
   const handleUpdateUser = (e) => {
     e.preventDefault();
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     setActionStatus({ type: '', message: '' });
     
     updateMutation.mutate({ userId: selectedUser.id, userData: editUserInfo }, {
@@ -102,6 +116,10 @@ const AdminUsersPage = () => {
   };
 
   const handleDeleteClick = (user) => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     // Safety: never open the delete modal for the current user's own account
     if (isSelf(user)) return;
     setSelectedUser(user);
@@ -109,6 +127,10 @@ const AdminUsersPage = () => {
   };
 
   const handleDeleteConfirm = () => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     // Service-layer guard: abort if somehow triggered for self
     if (isSelf(selectedUser)) {
       setActionStatus({ type: 'error', message: 'You cannot delete your own account.' });
@@ -129,6 +151,10 @@ const AdminUsersPage = () => {
   };
 
   const handleResetPassword = (email) => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     resetMutation.mutate(email, {
       onSuccess: () => {
         setActionStatus({ type: 'success', message: `Password reset sent to ${email}` });

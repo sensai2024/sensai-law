@@ -8,11 +8,23 @@ const AuthContext = createContext({
   profile: null,
   isLoading: true,
   isAdmin: false,
+  adminError: null,
+  triggerAdminError: () => {},
+  clearAdminError: () => {},
 });
 
 export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
+  const [adminError, setAdminError] = useState(null);
+
+  const triggerAdminError = () => {
+    setAdminError("You do not have admin access to perform this action.");
+  };
+
+  const clearAdminError = () => {
+    setAdminError(null);
+  };
 
   useEffect(() => {
     // Get initial session
@@ -68,6 +80,9 @@ export const AuthProvider = ({ children }) => {
     profile: profile ?? null,
     isLoading: isLoadingSession || (!!session && isLoadingProfile),
     isAdmin,
+    adminError,
+    triggerAdminError,
+    clearAdminError,
     refetchProfile,
   };
 

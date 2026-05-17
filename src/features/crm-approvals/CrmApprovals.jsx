@@ -168,7 +168,7 @@ const CrmApprovals = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editedData, setEditedData] = useState({});
   const [activeDecision, setActiveDecision] = useState(null); // 'approved' | 'rejected' | null
-  const { user } = useAuth();
+  const { user, isAdmin, triggerAdminError } = useAuth();
 
 
   const { data, isLoading, isError } = useCrmApprovalsGroupedQuery();
@@ -221,6 +221,10 @@ const CrmApprovals = () => {
   };
 
   const handleStartEdit = () => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     let parsedExtracted = selectedVersion.extracted_data;
     if (typeof parsedExtracted === 'string') {
       try { parsedExtracted = JSON.parse(parsedExtracted); } catch { /* ignore parse error */ }
@@ -236,6 +240,10 @@ const CrmApprovals = () => {
   };
 
   const handleSaveEdit = async () => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     try {
       await saveMutation.mutateAsync({
         crmApproval: selectedVersion,
@@ -251,6 +259,10 @@ const CrmApprovals = () => {
   };
 
   const handleDecision = async (status) => {
+    if (!isAdmin) {
+      triggerAdminError();
+      return;
+    }
     // Guard: no record selected, or a decision is already in-flight
     if (!selectedVersion || decisionMutation.isPending) return;
     setActiveDecision(status);

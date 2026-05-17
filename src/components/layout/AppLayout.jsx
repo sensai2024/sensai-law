@@ -1,20 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import SidebarNav from './SidebarNav';
 import ActionButton from '../ui/ActionButton';
-import { RefreshCcw, LogOut, User, Menu } from 'lucide-react';
+import { RefreshCcw, LogOut, User, Menu, Shield } from 'lucide-react';
 import { useAuth } from '../../features/auth/AuthContext';
 import { useLogoutMutation } from '../../features/auth/authHooks';
 
 const AppLayout = () => {
     const location = useLocation();
     const queryClient = useQueryClient();
-    const { profile } = useAuth();
+    const { profile, adminError, clearAdminError } = useAuth();
     const logoutMutation = useLogoutMutation();
 
     // Mobile sidebar state — closed by default, always visible on desktop via CSS
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Clear admin permission error on route changes
+    useEffect(() => {
+        if (adminError) {
+            clearAdminError();
+        }
+    }, [location.pathname]);
 
     const handleRefresh = () => {
         queryClient.invalidateQueries();
@@ -102,6 +109,20 @@ const AppLayout = () => {
                 {/* Page Content */}
                 <div className="flex-1 overflow-y-auto p-6 lg:p-10 custom-scrollbar">
                     <div className="max-w-7xl mx-auto space-y-10">
+                        {adminError && (
+                            <div className="p-4 rounded-xl border flex items-center justify-between animate-in slide-in-from-top-2 duration-300 bg-status-error/10 border-status-error/30 text-status-error">
+                                <div className="flex items-center gap-3 font-medium text-sm">
+                                    <Shield size={18} className="shrink-0" />
+                                    <span>{adminError}</span>
+                                </div>
+                                <button 
+                                    onClick={clearAdminError} 
+                                    className="text-[10px] font-bold uppercase tracking-widest opacity-60 hover:opacity-100 transition-opacity ml-4 shrink-0"
+                                >
+                                    Dismiss
+                                </button>
+                            </div>
+                        )}
                         <Outlet />
                     </div>
                 </div>
